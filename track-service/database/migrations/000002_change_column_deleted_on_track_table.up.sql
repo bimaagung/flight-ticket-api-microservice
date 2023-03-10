@@ -1,0 +1,2 @@
+ALTER TABLE tracks DROP COLUMN deleted;
+ALTER TABLE tracks ADD COLUMN deleted_at TIMESTAMP(0) WITH TIME zone;

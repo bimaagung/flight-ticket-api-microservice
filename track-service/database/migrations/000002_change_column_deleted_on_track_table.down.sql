@@ -1,0 +1,2 @@
+ALTER TABLE tracks DROP COLUMN deleted_at;
+ALL TABLE tracks ADD COLUMN deleted BOOLEAN NOT NULL DEFAULT false;
