@@ -1,7 +1,9 @@
 package event
 
 import (
+	"encoding/json"
 	"log"
+	"track-service/domain"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -33,7 +35,7 @@ func NewEventEmitter(conn *amqp.Connection) (Emitter, error) {
 	return emitter, nil
 }
 
-func (e *Emitter) Push(event string, severity string) error {
+func (e *Emitter) PushToQueue(payload *domain.Track, severity string) error {
 	channel, err := e.connection.Channel()
 
 	if err != nil {
@@ -44,14 +46,20 @@ func (e *Emitter) Push(event string, severity string) error {
 
 	log.Println("Pushing to channel")
 
+	j , err := json.MarshalIndent(&payload, "", "\t")
+
+	if err != nil {
+		return err
+	}
+	
 	err = channel.Publish(
-		"logs_topic",
+		"tracks_topic",
 		severity,
 		false,
 		false,
 		amqp.Publishing{
 			ContentType: "text/plain",
-            Body:        []byte(event),
+            Body:        []byte(string(j)),
 		},
 	)
 

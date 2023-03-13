@@ -6,20 +6,24 @@ import (
 	"errors"
 	"time"
 	"track-service/domain"
+	"track-service/helper/event"
 
 	"github.com/google/uuid"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 const dbTimeout = time.Second * 3
 
-func NewTrackRepositoryPostgres(database *sql.DB) domain.TrackRepositoryPostgres {
+func NewTrackRepositoryPostgres(database *sql.DB, rabbitMQ *amqp.Connection) domain.TrackRepositoryPostgres {
 	return &trackRepositoryPostgres{
 		DB: database,
+		Rabbit: rabbitMQ,
 	}
 }
 
 type trackRepositoryPostgres struct {
 	DB *sql.DB
+	Rabbit *amqp.Connection
 }
 
 func (repository *trackRepositoryPostgres) Insert(track *domain.Track)(string, error) {
@@ -40,6 +44,19 @@ func (repository *trackRepositoryPostgres) Insert(track *domain.Track)(string, e
 		return "", nil
 	}
 
+	// push to queue
+	emitter, err := event.NewEventEmitter(repository.Rabbit)
+	
+	if err != nil {
+		return "", err
+	}
+
+	err = emitter.PushToQueue(track, "track.INFO")
+	
+	if err != nil {
+		return "", err
+	}
+
 	return ID.String(), nil
 }
 
@@ -48,7 +65,7 @@ func (repository *trackRepositoryPostgres) CheckTrackExist(arrival string, depar
 	defer cancel()
 
 	var track domain.Track
-	query := `select id from tracks where arrival = $1 and departure = $2 and is null`
+	query := `select id from tracks where arrival = $1 and departure = $2 and deleted_at is null`
 
 	row := repository.DB.QueryRowContext(ctx, query, arrival, departure)
 

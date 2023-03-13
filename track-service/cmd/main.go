@@ -22,9 +22,19 @@ func init() {
 func main() {
 	log.Println("Starting track service")
 
+	// RabbitMQ connection
+	rabbitConn, err := rabbitmq.NewRabbitMQClient()
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+
+	defer rabbitConn.Close()
+	log.Println("Listening for and consuming RabbitMQ messages...")
+
 	dbPostgres := postgresdb.NewDBPostgres()
 
-	trackRepositoryPostgres := postgresrepository.NewTrackRepositoryPostgres(dbPostgres)
+	trackRepositoryPostgres := postgresrepository.NewTrackRepositoryPostgres(dbPostgres, rabbitConn)
 	trackUseCase := usecase.NewTrackUseCase(trackRepositoryPostgres)
 	trackHttpHandler := httphandler.NewTrackHandler(trackUseCase)
 
@@ -45,15 +55,5 @@ func main() {
 
 	port := fmt.Sprintf(":%s", viper.Get("PORT"))
 	r.Run(port) 
-
-	// RabbitMQ connection
-	rabbitConn, err := rabbitmq.NewRabbitMQClient()
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
-	}
-
-	defer rabbitConn.Close()
-	log.Println("Listening for and consuming RabbitMQ messages...")
 
 }
