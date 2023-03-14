@@ -1,3 +1,5 @@
 track-service.code-workspace
 track-service/.env
 track-service/.vscode
+airplane-service/.env
+airplane-service/.vscode
