@@ -1,4 +1,4 @@
-DB=postgres://postgres:12345678@localhost:5432/flight_ticket?sslmode=disable
+DB=mysql://root@tcp(localhost:3306)/airplane?multiStatements=true
 
 start:
 	go run cmd/main.go
