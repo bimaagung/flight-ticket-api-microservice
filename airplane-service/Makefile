@@ -1,7 +1,7 @@
 DB=mysql://root@tcp(localhost:3306)/airplane?multiStatements=true&tls=false
 N=1
 V=1
-TITLE=
+TITLE=change_column_deleted_at_table_airplane
 
 start:
 	go run cmd/main.go
