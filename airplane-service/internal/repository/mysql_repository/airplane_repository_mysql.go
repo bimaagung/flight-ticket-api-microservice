@@ -164,12 +164,14 @@ func (repository *airplaneRepositoryMysql) VerifyAirplaneAvailable(idAirplane st
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	
-	query := `select * from airplanes where id = ? and deleted_at is null`
+	var ID string
 
-	_, err := repository.DB.QueryContext(ctx, query, idAirplane)
+	query := "select id from airplanes where id = ? and deleted_at is null"
+
+	err := repository.DB.QueryRowContext(ctx, query, idAirplane).Scan(&ID)
 	
 	if err != nil {
-		if err != sql.ErrNoRows{
+		if err == sql.ErrNoRows{
 			return errors.New("airplane not found")
 		}
 
@@ -179,38 +181,33 @@ func (repository *airplaneRepositoryMysql) VerifyAirplaneAvailable(idAirplane st
 	return nil
 }
 
-func (repository *airplaneRepositoryMysql) Update(idAirplane string, airplane *domain.Airplane)(*domain.Airplane, error) {
+func (repository *airplaneRepositoryMysql) Update(idAirplane string, airplane *domain.Airplane)(error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-
-	airplaneRes := &domain.Airplane{}
 	
-	upatedAt := time.Now()
+	upatedAt := time.Now().UTC()
 
-	query := `update airplanes set arrival = $1, departure = $2, long_flight = $3, updated_at = $4 where id = $5 returning id, arrival, departure, long_flight, created_at, updated_at`
+	query := `update airplanes set flight_code = ?, seats = ?, type = ?, production_date = ?, factory = ?, updated_at = ? where id = ?`
 
-	err := repository.DB.QueryRowContext(ctx, query,
-		airplane.FlightCode,
-		airplane.Seats,
-		airplane.Type,
-		airplane.ProductionDate,
-		airplane.Factory,
-		upatedAt,
-		idAirplane,
-	).Scan(
-		&airplaneRes.Id,
-		airplane.FlightCode,
-		airplane.Seats,
-		airplane.Type,
-		airplane.ProductionDate,
-		airplane.Factory,
-		&airplaneRes.CreatedAt,
-		&airplaneRes.UpdatedAt,
-	)
-
+	stmt, err := repository.DB.PrepareContext(ctx, query)
 	if err != nil {
-		return nil, nil
+		return err
 	}
 
-	return airplaneRes, nil
+	defer stmt.Close()
+
+	res, err := stmt.Exec(airplane.FlightCode, airplane.Seats, airplane.Type, airplane.ProductionDate, airplane.Factory, upatedAt, idAirplane)
+
+	if err != nil {
+		return err
+	}
+
+	_ , err = res.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+	
+
+	return nil
 }

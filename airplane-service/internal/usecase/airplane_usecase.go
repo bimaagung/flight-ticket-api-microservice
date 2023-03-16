@@ -116,11 +116,11 @@ func(useCase *airplaneUseCaseImpl) Delete(id string) error {
 	return nil
 }
 
-func(useCase *airplaneUseCaseImpl) Update(idAirplane string, payload *domain.AirplaneReq)(*domain.AirplaneRes, error){
+func(useCase *airplaneUseCaseImpl) Update(idAirplane string, payload *domain.AirplaneReq) error{
 	
 	parseProduction, err := time.Parse(formatTime, payload.ProductionDate)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	airplane := &domain.Airplane{
@@ -134,25 +134,14 @@ func(useCase *airplaneUseCaseImpl) Update(idAirplane string, payload *domain.Air
 	err = useCase.AirplaneRepositoryMysql.VerifyAirplaneAvailable(idAirplane)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	airplaneRes, err := useCase.AirplaneRepositoryMysql.Update(idAirplane, airplane)
+	err = useCase.AirplaneRepositoryMysql.Update(idAirplane, airplane)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	result := &domain.AirplaneRes{
-		Id: airplaneRes.Id,
-		FlightCode: airplaneRes.FlightCode,
-		Seats: airplaneRes.Seats,
-		Type: airplaneRes.Type,
-		ProductionDate: airplaneRes.ProductionDate,
-		Factory: airplaneRes.Factory,
-		CreatedAt: airplaneRes.CreatedAt,
-		UpdatedAt: airplaneRes.UpdatedAt,
-	}
-
-	return result, nil
+	return  nil
 }

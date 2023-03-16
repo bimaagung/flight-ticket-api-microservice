@@ -120,7 +120,7 @@ func (handler *AirplaneHandler) Update(c *gin.Context) {
 		return
 	}
 
-	result, err := handler.AirplaneUseCase.Update(id, &payload)
+	err := handler.AirplaneUseCase.Update(id, &payload)
 
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -133,6 +133,5 @@ func (handler *AirplaneHandler) Update(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"status": "ok",
 		"message": "success",
-		"data": result,
 	})	
 }

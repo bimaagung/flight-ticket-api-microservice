@@ -42,7 +42,7 @@ type AirplaneRepositoryMysql interface {
 	List()([]*Airplane, error)
 	Delete(id string) error
 	VerifyAirplaneAvailable(idAirplane string) error
-	Update(idAirplane string, track *Airplane)(*Airplane, error)
+	Update(idAirplane string, track *Airplane)(error)
 }
 
 type AirplaneUseCase interface {
@@ -50,5 +50,5 @@ type AirplaneUseCase interface {
 	GetById(idAirplane string)(*AirplaneRes, error)
 	List()([]*AirplaneRes, error)
 	Delete(id string) error
-	Update(idAirplane string, track *AirplaneReq)(*AirplaneRes, error)
+	Update(idAirplane string, track *AirplaneReq)(error)
 }
