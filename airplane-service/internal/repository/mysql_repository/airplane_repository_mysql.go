@@ -147,9 +147,9 @@ func (repository *airplaneRepositoryMysql) Delete(idAirplane string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	deletedAt := time.Now()
+	deletedAt := time.Now().UTC()
 	
-	query := `update airplanes set deleted_at = $1 where id = $2`
+	query := `update airplanes set deleted_at = ? where id = ?`
 
 	_, err := repository.DB.QueryContext(ctx, query, deletedAt,idAirplane)
 	
@@ -164,7 +164,7 @@ func (repository *airplaneRepositoryMysql) VerifyAirplaneAvailable(idAirplane st
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	
-	query := `select * from airplanes where id = $1 and deleted_at is null`
+	query := `select * from airplanes where id = ? and deleted_at is null`
 
 	_, err := repository.DB.QueryContext(ctx, query, idAirplane)
 	
