@@ -13,10 +13,9 @@ import (
 
 const dbTimeout = time.Second * 3
 
-func NewAirplaneRepositoryMysql(database *sql.DB, rabbitMQ *amqp.Connection) domain.AirplaneRepositoryMysql {
+func NewAirplaneRepositoryMysql(database *sql.DB) domain.AirplaneRepositoryMysql {
 	return &airplaneRepositoryMysql{
 		DB: database,
-		Rabbit: rabbitMQ,
 	}
 }
 
@@ -30,19 +29,24 @@ func (repository *airplaneRepositoryMysql) Insert(airplane *domain.Airplane)(str
 	defer cancel()
 
 	var ID string = uuid.New().String()
-	query := `insert into airplanes (id, flight_code, seats, type, production, factory) values ($1, $2, $3, $4, $5, $6) returning id`
+	query := `insert into airplanes (id, flight_code, seats, type, production_date, factory) values (?, ?, ?, ?, ?, ?)`
 
-	err := repository.DB.QueryRowContext(ctx, query,
-		ID,
-		airplane.FlightCode,
-		airplane.Seats,
-		airplane.Type,
-		airplane.Production,
-		airplane.Factory,
-	).Scan(&ID)
+	stmt, err := repository.DB.PrepareContext(ctx, query)
+	if err != nil {
+		return "", err
+	}
+
+	defer stmt.Close()
+
+	res, err := stmt.Exec(ID, airplane.FlightCode, airplane.Seats, airplane.Type, airplane.ProductionDate, airplane.Factory)
+	if err != nil {
+		return "", err
+	}
+
+	_ , err = res.RowsAffected()
 
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return ID, nil
@@ -54,7 +58,7 @@ func (repository *airplaneRepositoryMysql) CheckAirplaneExist(flightCode string)
 
 	var airplane domain.Airplane
 
-	query := `select id from airplanes where flight_code = $1 and deleted_at is null`
+	query := `select id from airplanes where flight_code = ? and deleted_at is null`
 
 	row := repository.DB.QueryRowContext(ctx, query, flightCode)
 
@@ -86,7 +90,7 @@ func (repository *airplaneRepositoryMysql) GetById(idAirplane string)(*domain.Ai
 	
 	query := `select id, flight_code, seats, type, production, factory, created_at, updated_at from airplanes where id = $1 and deleted_at is null`
 
-	err := repository.DB.QueryRowContext(ctx, query, idAirplane).Scan(&airplane.Id, &airplane.FlightCode, &airplane.Seats, &airplane.Type, &airplane.Production, &airplane.Factory, &airplane.CreatedAt, &airplane.UpdatedAt)
+	err := repository.DB.QueryRowContext(ctx, query, idAirplane).Scan(&airplane.Id, &airplane.FlightCode, &airplane.Seats, &airplane.Type, &airplane.ProductionDate, &airplane.Factory, &airplane.CreatedAt, &airplane.UpdatedAt)
 	
 	if err != nil {
 		if err != sql.ErrNoRows{
@@ -123,7 +127,7 @@ func (repository *airplaneRepositoryMysql) List()([]*domain.Airplane, error){
 			&airplane.FlightCode, 
 			&airplane.Seats, 
 			&airplane.Type, 
-			&airplane.Production, 
+			&airplane.ProductionDate, 
 			&airplane.Factory, 
 			&airplane.CreatedAt, 
 			&airplane.UpdatedAt,
@@ -189,7 +193,7 @@ func (repository *airplaneRepositoryMysql) Update(idAirplane string, airplane *d
 		airplane.FlightCode,
 		airplane.Seats,
 		airplane.Type,
-		airplane.Production,
+		airplane.ProductionDate,
 		airplane.Factory,
 		upatedAt,
 		idAirplane,
@@ -198,7 +202,7 @@ func (repository *airplaneRepositoryMysql) Update(idAirplane string, airplane *d
 		airplane.FlightCode,
 		airplane.Seats,
 		airplane.Type,
-		airplane.Production,
+		airplane.ProductionDate,
 		airplane.Factory,
 		&airplaneRes.CreatedAt,
 		&airplaneRes.UpdatedAt,

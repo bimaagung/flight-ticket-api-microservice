@@ -1,6 +1,11 @@
 package usecase
 
-import "airplane-service/domain"
+import (
+	"airplane-service/domain"
+	"time"
+)
+
+const formatTime = "2006-01-02"
 
 func NewAirplaneUseCase(airplaneRepositoryMysql domain.AirplaneRepositoryMysql) domain.AirplaneUseCase {
 	return &airplaneUseCaseImpl{
@@ -14,15 +19,21 @@ type airplaneUseCaseImpl struct {
 
 func(useCase *airplaneUseCaseImpl) Add(payload *domain.AirplaneReq)(string, error){
 	
+	parseProduction, err := time.Parse(formatTime, payload.ProductionDate)
+	
+	if err != nil {
+		return "", err
+	}
+
 	airplane := &domain.Airplane{
 		FlightCode: payload.FlightCode,
 		Seats: payload.Seats,
 		Type: payload.Type,
-		Production: payload.Production,
+		ProductionDate: parseProduction,
 		Factory: payload.Factory,
 	}
 
-	err := useCase.AirplaneRepositoryMysql.CheckAirplaneExist(payload.FlightCode)
+	err = useCase.AirplaneRepositoryMysql.CheckAirplaneExist(payload.FlightCode)
 
 	if err != nil {
 		return "", err
@@ -50,7 +61,7 @@ func(useCase *airplaneUseCaseImpl) GetById(id string)(*domain.AirplaneRes, error
 		FlightCode: airplane.FlightCode,
 		Seats: airplane.Seats,
 		Type: airplane.Type,
-		Production: airplane.Production,
+		ProductionDate: airplane.ProductionDate,
 		Factory: airplane.Factory,
 		CreatedAt: airplane.CreatedAt,
 		UpdatedAt: airplane.UpdatedAt,
@@ -75,7 +86,7 @@ func(useCase *airplaneUseCaseImpl) List()([]*domain.AirplaneRes, error){
 			FlightCode: v.FlightCode,
 			Seats: v.Seats,
 			Type: v.Type,
-			Production: v.Production,
+			ProductionDate: v.ProductionDate,
 			Factory: v.Factory,
 			CreatedAt: v.CreatedAt,
 			UpdatedAt: v.UpdatedAt,
@@ -107,15 +118,20 @@ func(useCase *airplaneUseCaseImpl) Delete(id string) error {
 
 func(useCase *airplaneUseCaseImpl) Update(idAirplane string, payload *domain.AirplaneReq)(*domain.AirplaneRes, error){
 	
+	parseProduction, err := time.Parse(formatTime, payload.ProductionDate)
+	if err != nil {
+		return nil, err
+	}
+
 	airplane := &domain.Airplane{
 		FlightCode: payload.FlightCode,
 		Seats: payload.Seats,
 		Type: payload.Type,
-		Production: payload.Production,
+		ProductionDate: parseProduction,
 		Factory: payload.Factory,
 	}
 
-	err := useCase.AirplaneRepositoryMysql.VerifyAirplaneAvailable(idAirplane)
+	err = useCase.AirplaneRepositoryMysql.VerifyAirplaneAvailable(idAirplane)
 
 	if err != nil {
 		return nil, err
@@ -132,7 +148,7 @@ func(useCase *airplaneUseCaseImpl) Update(idAirplane string, payload *domain.Air
 		FlightCode: airplaneRes.FlightCode,
 		Seats: airplaneRes.Seats,
 		Type: airplaneRes.Type,
-		Production: airplaneRes.Production,
+		ProductionDate: airplaneRes.ProductionDate,
 		Factory: airplaneRes.Factory,
 		CreatedAt: airplaneRes.CreatedAt,
 		UpdatedAt: airplaneRes.UpdatedAt,

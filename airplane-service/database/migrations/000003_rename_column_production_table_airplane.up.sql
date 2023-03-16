@@ -1,0 +1,1 @@
+ALTER TABLE Airplanes CHANGE production_year production_date DATE NOT NULL;
