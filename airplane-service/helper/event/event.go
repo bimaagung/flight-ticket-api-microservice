@@ -6,7 +6,7 @@ import (
 
 func declareExchange(ch *ampq.Channel) error {
 	return ch.ExchangeDeclare(
-		"tracks_topic",	// name
+		"airplanes_topic",	// name
 		"topic", 		// topic
 		true,      		// durable?
         false,     		// auto-deleted?
