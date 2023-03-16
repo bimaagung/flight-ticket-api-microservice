@@ -88,12 +88,12 @@ func (repository *airplaneRepositoryMysql) GetById(idAirplane string)(*domain.Ai
 
 	airplane := &domain.Airplane{}
 	
-	query := `select id, flight_code, seats, type, production, factory, created_at, updated_at from airplanes where id = $1 and deleted_at is null`
+	query := `select id, flight_code, seats, type, production_date, factory, created_at, updated_at from airplanes where id = ? and deleted_at is null`
 
 	err := repository.DB.QueryRowContext(ctx, query, idAirplane).Scan(&airplane.Id, &airplane.FlightCode, &airplane.Seats, &airplane.Type, &airplane.ProductionDate, &airplane.Factory, &airplane.CreatedAt, &airplane.UpdatedAt)
 	
 	if err != nil {
-		if err != sql.ErrNoRows{
+		if err == sql.ErrNoRows{
 			return nil, errors.New("airplane not found")
 		}
 
@@ -107,7 +107,7 @@ func (repository *airplaneRepositoryMysql) List()([]*domain.Airplane, error){
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	
-	query := `select id, flight_code, seats, type, production, factory, created_at, updated_at from airplanes where deleted_at is null`
+	query := `select id, flight_code, seats, type, production_date, factory, created_at, updated_at from airplanes where deleted_at is null`
 
 	rows, err := repository.DB.QueryContext(ctx, query)
 

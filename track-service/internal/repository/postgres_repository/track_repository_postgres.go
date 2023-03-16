@@ -41,7 +41,7 @@ func (repository *trackRepositoryPostgres) Insert(track *domain.Track)(string, e
 	).Scan(&ID)
 
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	// push to queue
@@ -106,7 +106,7 @@ func (repository *trackRepositoryPostgres) GetById(idTrack string)(*domain.Track
 	err = repository.DB.QueryRowContext(ctx, query, uuidConvert).Scan(&track.Id, &track.Arrival, &track.Departure, &track.LongFlight, &track.CreatedAt)
 	
 	if err != nil {
-		if err != sql.ErrNoRows{
+		if err == sql.ErrNoRows{
 			return nil, errors.New("track not found")
 		}
 
