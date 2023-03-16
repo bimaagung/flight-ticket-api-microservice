@@ -5,8 +5,10 @@ import (
 	mysqlrepository "airplane-service/internal/repository/mysql_repository"
 	"airplane-service/internal/usecase"
 	"airplane-service/pkg/mysqldb"
+	"airplane-service/pkg/rabbitmq"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -20,9 +22,20 @@ func init() {
 func main() {
 	log.Println("Starting airplane service")
 
+	// RabbitMQ connection
+	rabbitConn, err := rabbitmq.NewRabbitMQClient()
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+
+	defer rabbitConn.Close()
+	log.Println("Listening for and consuming RabbitMQ messages...")
+	
+
 	dbMysql := mysqldb.NewDBMysql()
 
-	airplaneRepositoryPostgres := mysqlrepository.NewAirplaneRepositoryMysql(dbMysql)
+	airplaneRepositoryPostgres := mysqlrepository.NewAirplaneRepositoryMysql(dbMysql, rabbitConn)
 	airplaneUseCase := usecase.NewAirplaneUseCase(airplaneRepositoryPostgres)
 	airplaneHttpHandler := httphandler.NewAirplaneHandler(airplaneUseCase)
 

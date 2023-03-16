@@ -2,6 +2,7 @@ package mysqlrepository
 
 import (
 	"airplane-service/domain"
+	"airplane-service/helper/event"
 	"context"
 	"database/sql"
 	"errors"
@@ -13,9 +14,10 @@ import (
 
 const dbTimeout = time.Second * 3
 
-func NewAirplaneRepositoryMysql(database *sql.DB) domain.AirplaneRepositoryMysql {
+func NewAirplaneRepositoryMysql(database *sql.DB, rabbitMQ *amqp.Connection) domain.AirplaneRepositoryMysql {
 	return &airplaneRepositoryMysql{
 		DB: database,
+		Rabbit: rabbitMQ,
 	}
 }
 
@@ -45,6 +47,19 @@ func (repository *airplaneRepositoryMysql) Insert(airplane *domain.Airplane)(str
 
 	_ , err = res.RowsAffected()
 
+	if err != nil {
+		return "", err
+	}
+
+	// push to queue
+	emitter, err := event.NewEventEmitter(repository.Rabbit)
+	
+	if err != nil {
+		return "", err
+	}
+
+	err = emitter.PushToQueue(airplane, "airplane.INFO")
+	
 	if err != nil {
 		return "", err
 	}
