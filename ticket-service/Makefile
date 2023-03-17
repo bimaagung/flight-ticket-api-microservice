@@ -1,7 +1,7 @@
 DB=postgres://postgres:12345678@localhost:5432/ticket?sslmode=disable
 N=3
-V=2
-TITLE=rename_column_production_table_airplane
+V=3
+TITLE=create_airplanes_ticket_table
 
 start:
 	go run cmd/main.go

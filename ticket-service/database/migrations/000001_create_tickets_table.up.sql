@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS tickets (
+    "id" UUID NOT NULL PRIMARY KEY,
+    "track_id" UUID NOT NULL,
+    "airplane_id" UUID NOT NULL,
+    "date" DATE NOT NULL,
+    "time" TIME WITH TIME zone NOT NULL,
+    "price" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(0) WITH TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(0) WITH TIME zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMP(0) WITH TIME zone
+);
