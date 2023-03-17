@@ -191,7 +191,7 @@ func (repository *trackRepositoryPostgres) VerifyTrackAvailable(idTrack string) 
 	_, err = repository.DB.QueryContext(ctx, query, uuidConvert)
 	
 	if err != nil {
-		if err != sql.ErrNoRows{
+		if err == sql.ErrNoRows{
 			return errors.New("track not found")
 		}
 

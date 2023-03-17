@@ -3,3 +3,5 @@ track-service/.env
 track-service/.vscode
 airplane-service/.env
 airplane-service/.vscode
+ticket-service/.env
+ticket-service/.vscode
