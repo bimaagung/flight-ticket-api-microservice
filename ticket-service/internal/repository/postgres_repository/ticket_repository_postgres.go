@@ -135,25 +135,30 @@ func (repository *ticketRepositoryPostgres) Update(idTicket string, ticket *doma
 		return nil, errors.New("ticket not found")
 	}
 
-	query := `update tickets set arrival = $1, departure = $2, long_flight = $3, updated_at = $4 where id = $5`
+	query := `update tickets set track_id = $1, airplane_id = $2, date = $3, time = $4, price = $5, updated_at = $7 where id = $5`
 
-	err = repository.DB.QueryRowContext(ctx, query,
-		ticket.Arrival,
-		ticket.Departure,
-		ticket.LongFlight,
+	result, err := repository.DB.ExecContext(ctx, query, 
+		ticket.TrackId,
+		ticket.AirplaneId,
+		ticket.Date,
+		ticket.Time,
+		ticket.Price,
 		upatedAt,
 		uuidConvert,
-	).Scan(
-		&ticketRes.Id,
-		&ticketRes.Arrival,
-		&ticketRes.Departure,
-		&ticketRes.LongFlight,
-		&ticketRes.CreatedAt,
-		&ticketRes.UpdatedAt,
 	)
 
 	if err != nil {
 		return nil, nil
+	}
+
+	rows, err := result.RowsAffected()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if rows != 1 {
+		return nil, errors.New("can't update ticket ")
 	}
 
 	return ticketRes, nil
