@@ -22,3 +22,8 @@ type TrackRes struct {
 	Departure  string    `json:"departure,omitempty"`
 	LongFlight int       `json:"long_flight,omitempty"`
 }
+
+type TrackRepositoryPostgres interface {
+	CheckTrackExist(arrival string, depature string) error
+	VerifyTrackAvailable(idTrack string) error
+}

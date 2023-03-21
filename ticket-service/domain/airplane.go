@@ -23,3 +23,7 @@ type AirplaneRes struct {
 	FlightCode       	string    	`json:"flight_code,omitempty"`
 	Seats    			int    		`json:"seats,omitempty"`
 }
+
+type AirplaneRepositoryPostgres interface {
+	VerifyAirplaneAvailable(idTrack string) error
+}

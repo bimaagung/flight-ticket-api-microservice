@@ -10,20 +10,20 @@ import (
 	"github.com/google/uuid"
 )
 
-const dbTimeout = time.Second * 3
-
 func NewTicketPostgresRepository(database *sql.DB) domain.TicketRepositoryPostgres {
 	return &ticketRepositoryPostgres{
 		DB: database,
+		DBTimeout: time.Second * 3,
 	}	
 }
 
 type ticketRepositoryPostgres struct {
 	DB *sql.DB
+	DBTimeout time.Duration
 }
 
 func(repository *ticketRepositoryPostgres) Insert(ticket *domain.Ticket)(string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(),dbTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(),repository.DBTimeout)
 	defer cancel()
 
 	var ID uuid.UUID = uuid.New()
@@ -46,7 +46,7 @@ func(repository *ticketRepositoryPostgres) Insert(ticket *domain.Ticket)(string,
 }
 
 func (repository *ticketRepositoryPostgres) CheckTicketExist(trackId uuid.UUID, airplaneId uuid.UUID, date time.Time, time time.Time) error {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 
 	var ticket domain.Ticket
@@ -75,7 +75,7 @@ func (repository *ticketRepositoryPostgres) CheckTicketExist(trackId uuid.UUID, 
 }
 
 func (repository *ticketRepositoryPostgres) Delete(idTicket string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 
 	deletedAt := time.Now()
@@ -98,7 +98,7 @@ func (repository *ticketRepositoryPostgres) Delete(idTicket string) error {
 }
 
 func (repository *ticketRepositoryPostgres) VerifyTicketAvailable(idTicket string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 
 	uuidConvert, err := uuid.Parse(idTicket)
@@ -123,7 +123,7 @@ func (repository *ticketRepositoryPostgres) VerifyTicketAvailable(idTicket strin
 }
 
 func (repository *ticketRepositoryPostgres) Update(idTicket string, ticket *domain.Ticket)error {
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 
 	upatedAt := time.Now()

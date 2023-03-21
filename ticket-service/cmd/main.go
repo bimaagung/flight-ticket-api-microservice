@@ -33,8 +33,15 @@ func main() {
 		})
 	})
 
+	// Track
+	trackRepositoryPostgres := postgresrepository.NewTrackRepositoryPostgres(conn)
+	
+	// Airplane
+	airplaneRepositoryPostgres := postgresrepository.NewAirplaneRepositoryPostgres(conn)
+
+	// Ticket
 	ticketRepositoryPostgres := postgresrepository.NewTicketPostgresRepository(conn)
-	ticketUseCase := usecase.NewTicketUseCase(ticketRepositoryPostgres)
+	ticketUseCase := usecase.NewTicketUseCase(ticketRepositoryPostgres, trackRepositoryPostgres, airplaneRepositoryPostgres)
 	ticketHttpHandler := httphandler.NewTicketHandler(ticketUseCase)
 
 	ticketHttpHandler.Route(r)

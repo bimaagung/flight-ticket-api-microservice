@@ -7,14 +7,24 @@ import (
 	"github.com/google/uuid"
 )
 
-func NewTicketUseCase(ticketRepositoryPostgres domain.TicketRepositoryPostgres) domain.TicketUseCase {
+func NewTicketUseCase(
+		ticketRepositoryPostgres domain.TicketRepositoryPostgres,
+		trackRepositoryPostgres domain.TrackRepositoryPostgres,
+		airplaneRepositoryPostgres domain.AirplaneRepositoryPostgres,
+	) domain.TicketUseCase {
+
 	return &ticketUseCaseImpl{
 		TicketRepositoryPostgres: ticketRepositoryPostgres,
+		TrackRepositoryPostgres: trackRepositoryPostgres,
+		AirplaneRepositoryPostgres: airplaneRepositoryPostgres,
 	}
+
 }
 
 type ticketUseCaseImpl struct {
 	TicketRepositoryPostgres domain.TicketRepositoryPostgres
+	TrackRepositoryPostgres domain.TrackRepositoryPostgres
+	AirplaneRepositoryPostgres domain.AirplaneRepositoryPostgres
 }
 
 func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
@@ -40,6 +50,18 @@ func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 
 	err = useCase.TicketRepositoryPostgres.CheckTicketExist(trackId, airplaneId, ticket.Date, ticket.Time)
 
+	if err != nil {
+		return "", err
+	}
+
+	// check if track not found
+	err = useCase.TrackRepositoryPostgres.VerifyTrackAvailable(payload.TrackId)
+	if err != nil {
+		return "", err
+	}
+
+	// check if airplane not found
+	err = useCase.AirplaneRepositoryPostgres.VerifyAirplaneAvailable(payload.TrackId)
 	if err != nil {
 		return "", err
 	}
