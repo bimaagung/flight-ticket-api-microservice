@@ -1,4 +1,4 @@
-package event
+package trackevent
 
 import (
 	ampq "github.com/rabbitmq/amqp091-go"

@@ -76,3 +76,24 @@ func (repository *trackRepositoryPostgres) VerifyTrackAvailable(idTrack string) 
 
 	return nil
 }
+
+func (repository *trackRepositoryPostgres) Insert(track *domain.Track)(string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
+	defer cancel()
+
+	var ID uuid.UUID = uuid.New()
+	query := `insert into tracks (id, arrival, departure, long_flight) values ($1, $2, $3, $4) returning id`
+
+	err := repository.DB.QueryRowContext(ctx, query,
+		ID,
+		track.Arrival,
+		track.Departure,
+		track.LongFlight,
+	).Scan(&ID)
+
+	if err != nil {
+		return "", err
+	}
+
+	return ID.String(), nil
+}

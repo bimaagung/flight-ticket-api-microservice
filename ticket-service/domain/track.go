@@ -26,4 +26,9 @@ type TrackRes struct {
 type TrackRepositoryPostgres interface {
 	CheckTrackExist(arrival string, depature string) error
 	VerifyTrackAvailable(idTrack string) error
+	Insert(track *Track)(string, error)
+}
+
+type TrackUseCase interface {
+	Add(payload *Track)(string, error)
 }
