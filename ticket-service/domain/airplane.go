@@ -2,10 +2,12 @@ package domain
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Airplane struct {
-	Id            		string   		`json:"id"`
+	Id            		uuid.UUID   		`json:"id"`
 	FlightCode       	string    		`json:"flight_code,omitempty"`
 	Seats    			int    			`json:"seats,omitempty"`
 	Type    			string 			`json:"type,omitempty"`

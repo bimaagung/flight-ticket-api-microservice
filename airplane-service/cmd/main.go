@@ -32,13 +32,6 @@ func main() {
 	defer rabbitConn.Close()
 	log.Println("Listening for and consuming RabbitMQ messages...")
 	
-
-	dbMysql := mysqldb.NewDBMysql()
-
-	airplaneRepositoryPostgres := mysqlrepository.NewAirplaneRepositoryMysql(dbMysql, rabbitConn)
-	airplaneUseCase := usecase.NewAirplaneUseCase(airplaneRepositoryPostgres)
-	airplaneHttpHandler := httphandler.NewAirplaneHandler(airplaneUseCase)
-
 	// connect to database
 	conn := mysqldb.NewDBMysql()
 	if conn == nil {
@@ -51,6 +44,11 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	airplaneRepositoryPostgres := mysqlrepository.NewAirplaneRepositoryMysql(conn, rabbitConn)
+	airplaneUseCase := usecase.NewAirplaneUseCase(airplaneRepositoryPostgres)
+	airplaneHttpHandler := httphandler.NewAirplaneHandler(airplaneUseCase)
+
 
 	airplaneHttpHandler.Route(r)
 

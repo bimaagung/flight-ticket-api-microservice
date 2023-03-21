@@ -12,7 +12,7 @@ import (
 
 const dbTimeout = time.Second * 3
 
-func NewPostgresRepository(database *sql.DB) domain.TicketRepositoryPostgres {
+func NewTicketPostgresRepository(database *sql.DB) domain.TicketRepositoryPostgres {
 	return &ticketRepositoryPostgres{
 		DB: database,
 	}	
@@ -45,7 +45,7 @@ func(repository *ticketRepositoryPostgres) Insert(ticket *domain.Ticket)(string,
 	return ID.String(), nil
 }
 
-func (repository *ticketRepositoryPostgres) CheckTicketExist(trackId string, airplaneId string, date time.Time, time time.Time) error {
+func (repository *ticketRepositoryPostgres) CheckTicketExist(trackId uuid.UUID, airplaneId uuid.UUID, date time.Time, time time.Time) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -122,17 +122,16 @@ func (repository *ticketRepositoryPostgres) VerifyTicketAvailable(idTicket strin
 	return nil
 }
 
-func (repository *ticketRepositoryPostgres) Update(idTicket string, ticket *domain.Ticket)(*domain.Ticket, error) {
+func (repository *ticketRepositoryPostgres) Update(idTicket string, ticket *domain.Ticket)error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	ticketRes := &domain.Ticket{}
 	upatedAt := time.Now()
 
 	uuidConvert, err := uuid.Parse(idTicket)
 
 	if err != nil {
-		return nil, errors.New("ticket not found")
+		return errors.New("ticket not found")
 	}
 
 	query := `update tickets set track_id = $1, airplane_id = $2, date = $3, time = $4, price = $5, updated_at = $7 where id = $5`
@@ -148,18 +147,18 @@ func (repository *ticketRepositoryPostgres) Update(idTicket string, ticket *doma
 	)
 
 	if err != nil {
-		return nil, nil
+		return err
 	}
 
 	rows, err := result.RowsAffected()
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if rows != 1 {
-		return nil, errors.New("can't update ticket ")
+		return errors.New("can't update ticket ")
 	}
 
-	return ticketRes, nil
+	return nil
 }

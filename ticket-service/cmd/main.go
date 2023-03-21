@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	httphandler "ticket-service/internal/handler/http/v1"
+	postgresrepository "ticket-service/internal/repository/postgres_repository"
+	"ticket-service/internal/usecase"
 	"ticket-service/pkg/postgresdb"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +18,7 @@ func init() {
 }
 
 func main() {
-	log.Println("Starting track service")
+	log.Println("Starting ticket service")
 
 	// connect to database
 	conn := postgresdb.NewDBPostgres()
@@ -29,6 +32,12 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	ticketRepositoryPostgres := postgresrepository.NewTicketPostgresRepository(conn)
+	ticketUseCase := usecase.NewTicketUseCase(ticketRepositoryPostgres)
+	ticketHttpHandler := httphandler.NewTicketHandler(ticketUseCase)
+
+	ticketHttpHandler.Route(r)
 
 	port := fmt.Sprintf(":%s", viper.Get("PORT"))
 	r.Run(port) 

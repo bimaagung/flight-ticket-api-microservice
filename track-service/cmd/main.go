@@ -32,12 +32,6 @@ func main() {
 	defer rabbitConn.Close()
 	log.Println("Listening for and consuming RabbitMQ messages...")
 
-	dbPostgres := postgresdb.NewDBPostgres()
-
-	trackRepositoryPostgres := postgresrepository.NewTrackRepositoryPostgres(dbPostgres, rabbitConn)
-	trackUseCase := usecase.NewTrackUseCase(trackRepositoryPostgres)
-	trackHttpHandler := httphandler.NewTrackHandler(trackUseCase)
-
 	// connect to database
 	conn := postgresdb.NewDBPostgres()
 	if conn == nil {
@@ -50,6 +44,10 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	trackRepositoryPostgres := postgresrepository.NewTrackRepositoryPostgres(conn, rabbitConn)
+	trackUseCase := usecase.NewTrackUseCase(trackRepositoryPostgres)
+	trackHttpHandler := httphandler.NewTrackHandler(trackUseCase)
 
 	trackHttpHandler.Route(r)
 
