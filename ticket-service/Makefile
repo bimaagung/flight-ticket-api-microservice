@@ -6,6 +6,9 @@ TITLE=create_airplanes_ticket_table
 start:
 	go run cmd/main.go
 
+start-consumer:
+	go run cmd/event/consumer.go
+
 test:
 	go test -v ./...
 	
