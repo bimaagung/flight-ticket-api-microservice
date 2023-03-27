@@ -5,3 +5,8 @@ airplane-service/.env
 airplane-service/.vscode
 ticket-service/.env
 ticket-service/.vscode
+project/db-data/mongo
+project/db-data/mysql
+project/db-data/postgres-ticket
+project/db-data/postgres-track
+project/db-data/rabbitmq

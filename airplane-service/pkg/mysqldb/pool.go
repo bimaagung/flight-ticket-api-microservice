@@ -8,7 +8,6 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/spf13/viper"
 )
 
 var counts int64
@@ -31,19 +30,15 @@ func openDB(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
-func NewDBMysql() *sql.DB{
+func NewDBMysql(dbUser string, dbPass string, dbHost string, dbPort string, dbName string) *sql.DB{
 
-	dbHost := viper.Get(`DB_HOST`)
-	dbPort := viper.Get(`DB_PORT`)
-	dbUser := viper.Get(`DB_USER`)
-	dbPass := viper.Get(`DB_PASSWORD`)
-	dbName := viper.Get(`DB_NAME`)
+	
 
 	connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 
 	val := url.Values{}
 	val.Add("parseTime", "1")
-	val.Add("loc", "Asia/Jakarta")
+	//val.Add("loc", "Asia/Jakarta")
 	val.Add("tls", "false")
 
 	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())

@@ -15,7 +15,7 @@ func NewRabbitMQClient() (*ampq.Connection, error) {
 	var connection *ampq.Connection
 
 	for {
-		c, err := ampq.Dial("amqp://guest:guest@localhost")
+		c, err := ampq.Dial("amqp://guest:guest@rabbitmq")
 		if err != nil {
 			fmt.Println("RabbitMQ not yet ready...")
 			counts++

@@ -1,0 +1,112 @@
+version: '3'
+
+services:
+
+  track-service:
+    build:
+      context: ./../track-service
+      dockerfile: ./../track-service/track-service.dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    deploy:
+      mode: replicated
+      replicas: 1
+    env_file:
+      - ./../track-service/.env
+
+  airplane-service:
+    build:
+      context: ./../airplane-service
+      dockerfile: ./../airplane-service/airplane-service.dockerfile
+    restart: always
+    ports:
+      - "3001:3001"
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - ./../airplane-service/.env
+      
+  ticket-service:
+    build:
+      context: ./../ticket-service
+      dockerfile: ./../ticket-service/ticket-service.dockerfile
+    restart: always
+    ports:
+      - "3002:3002"
+    deploy:
+      mode: replicated
+      replicas: 1
+    env_file:
+      - ./../ticket-service/.env
+  
+  postgres-track:
+    image: 'postgres:14.2'
+    ports:
+      - "5431:5432"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: flight_ticket
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./db-data/postgres-track/:/var/lib/postgresql-track/data/
+
+  postgres-ticket:
+    image: 'postgres:14.2'
+    ports:
+      - "5433:5432"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: ticket
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./db-data/postgres-ticket/:/var/lib/postgresql-ticket/data/
+  
+  rabbitmq:
+    image: 'rabbitmq:3.9-management'
+    ports:
+      - "15673:15672"
+    deploy:
+      mode: replicated
+      replicas: 1
+    volumes:
+      - ./db-data/rabbitmq/:/var/lib/rabbitmq/
+
+  mysql:
+    image: mysql
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: airplane
+    volumes:
+      - ./db-data/mysql/:/var/lib/mysql/
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10

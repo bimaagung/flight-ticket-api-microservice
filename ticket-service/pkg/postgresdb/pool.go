@@ -37,6 +37,7 @@ func NewDBPostgres() *sql.DB{
 	dbSSLMode := viper.Get("DB_SSLMODE")
 	dbTimezone := viper.Get("DB_TIMEZONE")
 	dbConnectTimeout := viper.Get("DB_CONNECT_TIMEOUT")
+
 	
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=%s connect_timeout=%s", 
 						dbHost, 

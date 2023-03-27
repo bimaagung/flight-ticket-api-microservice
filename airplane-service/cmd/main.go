@@ -6,7 +6,6 @@ import (
 	"airplane-service/internal/usecase"
 	"airplane-service/pkg/mysqldb"
 	"airplane-service/pkg/rabbitmq"
-	"fmt"
 	"log"
 	"os"
 
@@ -15,26 +14,46 @@ import (
 )
 
 func init() {
-	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
+	viper.AutomaticEnv()
+	
+	err := viper.ReadInConfig()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println(viper.ConfigFileUsed())
 }
 
 func main() {
+	dbHost := viper.GetString(`DB_HOST`)
+	dbPort := viper.GetString(`DB_PORT`)
+	dbUser := viper.GetString(`DB_USER`)
+	dbPass := viper.GetString(`DB_PASSWORD`)
+	dbName := viper.GetString(`DB_NAME`)
+
+	rabbitmqUser := viper.GetString(`RABBITMQ_USER`)
+	rabbitmqPass := viper.GetString(`RABBITMQ_PASSWORD`)
+	rabbitmqHost := viper.GetString(`RABBITMQ_HOST`)
+
+
 	log.Println("Starting airplane service")
 
 	// RabbitMQ connection
-	rabbitConn, err := rabbitmq.NewRabbitMQClient()
+	rabbitConn, err := rabbitmq.NewRabbitMQClient(rabbitmqUser, rabbitmqPass, rabbitmqHost)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
 
 	defer rabbitConn.Close()
+
 	log.Println("Listening for and consuming RabbitMQ messages...")
 	
 	// connect to database
-	conn := mysqldb.NewDBMysql()
+	conn := mysqldb.NewDBMysql(dbUser, dbPass, dbHost, dbPort, dbName)
 	if conn == nil {
+		log.Println(dbUser)
 		log.Panic("Can't connect to database")
 	}
 
@@ -52,7 +71,7 @@ func main() {
 
 	airplaneHttpHandler.Route(r)
 
-	port := fmt.Sprintf(":%s", viper.Get("PORT"))
-	r.Run(port) 
+	port := viper.GetString("PORT")
+	r.Run(port)
 
 }
