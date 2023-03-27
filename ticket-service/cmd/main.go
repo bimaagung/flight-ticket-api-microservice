@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	httphandler "ticket-service/internal/handler/http/v1"
 	postgresrepository "ticket-service/internal/repository/postgres_repository"
@@ -13,8 +12,15 @@ import (
 )
 
 func init() {
-	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
+	viper.AutomaticEnv()
+	
+	err := viper.ReadInConfig()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println(viper.ConfigFileUsed())
 }
 
 func main() {
@@ -83,7 +89,7 @@ func main() {
 
 	
 
-	port := fmt.Sprintf(":%s", viper.Get("PORT"))
+	port := viper.GetString("PORT")
 	r.Run(port) 
 
 }

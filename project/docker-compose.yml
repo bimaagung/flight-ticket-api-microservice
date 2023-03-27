@@ -52,6 +52,7 @@ services:
   
   postgres-track:
     image: 'postgres:14.2'
+    restart: always
     ports:
       - "5431:5432"
     deploy:
@@ -71,6 +72,7 @@ services:
 
   postgres-ticket:
     image: 'postgres:14.2'
+    restart: always
     ports:
       - "5433:5432"
     deploy:
@@ -90,6 +92,7 @@ services:
   
   rabbitmq:
     image: 'rabbitmq:3.9-management'
+    restart: always
     ports:
       - "15673:15672"
     deploy:
@@ -116,3 +119,36 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 5s
       retries: 10
+  
+  migrate-track:
+      image: migrate/migrate
+      volumes:
+          - ./../track-service/database/migrations:/database/migrations
+      command: ["-path", "/database/migrations", "-database",  "postgres://postgres:secret@postgres-track:5432/flight_ticket?sslmode=disable", "up"]
+      depends_on:
+        postgres-track:
+          condition: service_healthy
+      links: 
+          - postgres-track
+
+  migrate-ticket:
+      image: migrate/migrate
+      volumes:
+          - ./../ticket-service/database/migrations:/database/migrations
+      command: ["-path", "/database/migrations", "-database",  "postgres://postgres:secret@postgres-ticket:5432/ticket?sslmode=disable", "up"]
+      depends_on:
+        postgres-ticket:
+          condition: service_healthy
+      links: 
+          - postgres-ticket
+
+  migrate-airplane:
+      image: migrate/migrate
+      volumes:
+          - ./../airplane-service/database/migrations:/database/migrations
+      command: ["-path", "/database/migrations", "-database",  "mysql://root:secret@tcp(mysql:3306)/airplane?multiStatements=true&tls=false", "up"]
+      depends_on:
+        mysql:
+          condition: service_healthy
+      links: 
+          - mysql
