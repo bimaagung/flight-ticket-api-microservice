@@ -2,13 +2,13 @@ package postgresdb
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"time"
 
 	_ "github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
-	"github.com/spf13/viper"
 )
 
 var counts int64
@@ -27,11 +27,21 @@ func openDB(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
-func NewDBPostgres() *sql.DB{
-	dsn := viper.Get("DSN")
+func NewDBPostgres(dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode, dbTimezone, dbConnectTimeout string) *sql.DB{
+
+	dns := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=%s connect_timeout=%s",
+			dbHost,
+			dbPort,
+			dbUser,
+			dbPass,
+			dbName,
+			dbSSLMode,
+			dbTimezone,
+			dbConnectTimeout,
+		)
 
 	for {
-		connection, err := openDB(dsn.(string))
+		connection, err := openDB(dns)
 		if err != nil {
 			log.Println("Postgres not yet ready")
 			counts++

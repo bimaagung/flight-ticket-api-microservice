@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	httphandler "track-service/internal/handler/http/v1"
@@ -15,15 +14,36 @@ import (
 )
 
 func init() {
-	viper.SetConfigFile(".env")
-	viper.ReadInConfig()
+	viper.AutomaticEnv()
+	
+	err := viper.ReadInConfig()
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println(viper.ConfigFileUsed())
 }
 
 func main() {
+
+	dbHost 				:= viper.GetString(`DB_HOST`)
+	dbPort 				:= viper.GetString(`DB_PORT`)
+	dbUser 				:= viper.GetString(`DB_USER`)
+	dbPass 				:= viper.GetString(`DB_PASSWORD`)
+	dbName 				:= viper.GetString(`DB_NAME`)
+	dbSSLMode 			:= viper.GetString(`DB_SSL_MODE`)
+	dbTimezone 			:= viper.GetString(`DB_TIMEZONE`)
+	dbConnectTimeout 	:= viper.GetString(`DB_CONNECT_TIMEOUT`)
+
+	rabbitmqUser := viper.GetString(`RABBITMQ_USER`)
+	rabbitmqPass := viper.GetString(`RABBITMQ_PASSWORD`)
+	rabbitmqHost := viper.GetString(`RABBITMQ_HOST`)
+
 	log.Println("Starting track service")
 
 	// RabbitMQ connection
-	rabbitConn, err := rabbitmq.NewRabbitMQClient()
+	rabbitConn, err := rabbitmq.NewRabbitMQClient(rabbitmqUser, rabbitmqPass, rabbitmqHost)
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
@@ -33,7 +53,7 @@ func main() {
 	log.Println("Listening for and consuming RabbitMQ messages...")
 
 	// connect to database
-	conn := postgresdb.NewDBPostgres()
+	conn := postgresdb.NewDBPostgres(dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode, dbTimezone, dbConnectTimeout)
 	if conn == nil {
 		log.Panic("Can't connect to database")
 	}
@@ -51,7 +71,7 @@ func main() {
 
 	trackHttpHandler.Route(r)
 
-	port := fmt.Sprintf(":%s", viper.Get("PORT"))
+	port := viper.GetString("PORT")
 	r.Run(port) 
 
 }

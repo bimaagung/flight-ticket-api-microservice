@@ -9,13 +9,15 @@ import (
 	ampq "github.com/rabbitmq/amqp091-go"
 )
 
-func NewRabbitMQClient() (*ampq.Connection, error) {
+func NewRabbitMQClient(rabitmqUser, rabitmqPass, rabitmqHost string) (*ampq.Connection, error) {
 	var counts int64
 	var backoff = 1 * time.Second
 	var connection *ampq.Connection
 
+	var server string = fmt.Sprintf(`amqp://%s:%s@%s`, rabitmqUser, rabitmqPass, rabitmqHost) 
+
 	for {
-		c, err := ampq.Dial("amqp://guest:guest@rabbitmq")
+		c, err := ampq.Dial(server)
 		if err != nil {
 			fmt.Println("RabbitMQ not yet ready...")
 			counts++
