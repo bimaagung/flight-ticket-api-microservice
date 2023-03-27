@@ -44,6 +44,9 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+    depends_on:
+      postgres-ticket:
+        condition: service_healthy
     env_file:
       - ./../ticket-service/.env
   
@@ -78,10 +81,10 @@ services:
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: ticket
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
     volumes:
       - ./db-data/postgres-ticket/:/var/lib/postgresql-ticket/data/
   

@@ -29,7 +29,7 @@ func openDB(dsn string) (*sql.DB, error) {
 
 func NewDBPostgres(dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode, dbTimezone, dbConnectTimeout string) *sql.DB{
 
-	dns := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=%s connect_timeout=%s",
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=%s connect_timeout=%s",
 			dbHost,
 			dbPort,
 			dbUser,
@@ -41,7 +41,7 @@ func NewDBPostgres(dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode, dbTimezone
 		)
 
 	for {
-		connection, err := openDB(dns)
+		connection, err := openDB(dsn)
 		if err != nil {
 			log.Println("Postgres not yet ready")
 			counts++

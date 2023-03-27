@@ -18,6 +18,16 @@ func init() {
 }
 
 func main() {
+
+	dbHost 				:= viper.GetString(`DB_HOST`)
+	dbPort 				:= viper.GetString(`DB_PORT`)
+	dbUser 				:= viper.GetString(`DB_USER`)
+	dbPass 				:= viper.GetString(`DB_PASSWORD`)
+	dbName 				:= viper.GetString(`DB_NAME`)
+	dbSSLMode 			:= viper.GetString(`DB_SSL_MODE`)
+	dbTimezone 			:= viper.GetString(`DB_TIMEZONE`)
+	dbConnectTimeout 	:= viper.GetString(`DB_CONNECT_TIMEOUT`)
+
 	log.Println("Starting ticket service")
 
 	// RabbitMQ connection
@@ -32,7 +42,7 @@ func main() {
 
 
 	// connect to database
-	conn := postgresdb.NewDBPostgres()
+	conn := postgresdb.NewDBPostgres(dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode, dbTimezone, dbConnectTimeout)
 	if conn == nil {
 		log.Panic("Can't connect to database")
 	}

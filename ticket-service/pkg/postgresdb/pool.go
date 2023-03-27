@@ -9,7 +9,6 @@ import (
 	_ "github.com/jackc/pgconn"
 	_ "github.com/jackc/pgx/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
-	"github.com/spf13/viper"
 )
 
 var counts int64
@@ -28,26 +27,17 @@ func openDB(dsn string) (*sql.DB, error) {
 	return db, nil
 }
 
-func NewDBPostgres() *sql.DB{
-	dbHost := viper.Get("DB_HOST")
-	dbPort := viper.Get("DB_PORT")
-	dbUser := viper.Get("DB_USER")
-	dbPassword := viper.Get("DB_PASSWORD")
-	dbName := viper.Get("DB_NAME")
-	dbSSLMode := viper.Get("DB_SSLMODE")
-	dbTimezone := viper.Get("DB_TIMEZONE")
-	dbConnectTimeout := viper.Get("DB_CONNECT_TIMEOUT")
-
-	
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=%s connect_timeout=%s", 
-						dbHost, 
-						dbPort,
-						dbUser,
-						dbPassword,
-						dbName,
-						dbSSLMode,
-						dbTimezone,
-						dbConnectTimeout) 
+func NewDBPostgres(dbHost, dbPort, dbUser, dbPass, dbName, dbSSLMode, dbTimezone, dbConnectTimeout string) *sql.DB{
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s timezone=%s connect_timeout=%s",
+			dbHost,
+			dbPort,
+			dbUser,
+			dbPass,
+			dbName,
+			dbSSLMode,
+			dbTimezone,
+			dbConnectTimeout,
+		)
 
 	for {
 		connection, err := openDB(dsn)
