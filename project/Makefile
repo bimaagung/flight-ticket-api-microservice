@@ -1,13 +1,14 @@
 TRACK_BINARY=trackApp
 AIRPLANE_BINARY=airplaneApp
 TICKET_BINARY=ticketApp
+TICKET_CONSUMER_BINARY=ticketConsumerApp
 
 up:
 	@echo Starting Docker Images....
 	docker-compose up -d
 	@echo Docker Images Started!
 
-up-build: build-track build-airplane build-ticket
+up-build: build-track build-airplane build-ticket build-ticket-consumer
 	@echo Stopping docker images (if running...)
 	docker-compose down
 	@echo Building (when required) and starting docker images...
@@ -32,4 +33,9 @@ build-airplane:
 build-ticket:
 	@echo Building ticket binary
 	chdir ..\ticket-service && set GOOS=linux&& set GOARCH=amd64&& set CGO_ENABLED=0 && go build -o ${TICKET_BINARY} ./cmd
+	@echo Done
+
+build-ticket-consumer:
+	@echo Building ticket consumer binary
+	chdir ..\ticket-service && set GOOS=linux&& set GOARCH=amd64&& set CGO_ENABLED=0 && go build -o ${TICKET_CONSUMER_BINARY} ./cmd/event
 	@echo Done

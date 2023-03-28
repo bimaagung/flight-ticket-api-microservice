@@ -73,7 +73,7 @@ func (consumer *Consumer) Listen(topics string) error {
 				fmt.Println("error: ", err)
 			}
 
-			fmt.Printf("arrival: %s, destination: %s", payload.Arrival, payload.Departure)
+			log.Printf("arrival: %s, destination: %s", payload.Arrival, payload.Departure)
 
 			if err := d.Ack(true); err != nil {
 				log.Printf("Error acknowledging message : %s", err)

@@ -50,6 +50,22 @@ services:
     env_file:
       - ./../ticket-service/.env
   
+  ticket-consumer:
+    build:
+      context: ./../ticket-service
+      dockerfile: ./../ticket-service/ticket-consumer-service.dockerfile
+    restart: always
+    ports:
+      - "3003:3002"
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      postgres-ticket:
+        condition: service_healthy
+    env_file:
+      - ./../ticket-service/.env
+  
   postgres-track:
     image: 'postgres:14.2'
     restart: always
