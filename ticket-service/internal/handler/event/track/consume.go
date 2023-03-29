@@ -9,7 +9,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func NewTrackConsumer(conn *amqp.Connection, trackUseCase domain.TrackUseCase)(Consumer, error) {
+func NewTrackConsumer(conn *amqp.Connection)(Consumer, error) {
 	consumer := Consumer{
 		conn: conn,
 	}
@@ -30,7 +30,6 @@ func NewTrackConsumer(conn *amqp.Connection, trackUseCase domain.TrackUseCase)(C
 
 type Consumer struct {
 	conn *amqp.Connection
-	TrackUseCase domain.TrackUseCase
 }
 
 func (consumer *Consumer) Listen(topics string) error {
@@ -59,34 +58,22 @@ func (consumer *Consumer) Listen(topics string) error {
 	}
 
 	message, err := ch.Consume(q.Name, "", true, false, false, false, nil)
+
 	if err != nil {
 		return err
 	}
 
-	forever := make(chan bool)
-	go func() {
-		for d := range message {
-			// var payload domain.Track
-			payload := &domain.Track{}
-			err = json.Unmarshal(d.Body, &payload)
-			if err != nil {
-				fmt.Println("error: ", err)
-			}
-
-			log.Printf("arrival: %s, destination: %s", payload.Arrival, payload.Departure)
-
-			if err := d.Ack(true); err != nil {
-				log.Printf("Error acknowledging message : %s", err)
-			} else {
-				log.Printf("Acknowledged message")
-			}
-			
-			//go consumer.TrackUseCase.Add(payload)
+	
+	for d := range message {
+		// var payload domain.Track
+		payload := &domain.Track{}
+		err = json.Unmarshal(d.Body, &payload)
+		if err != nil {
+			fmt.Println("error: ", err)
 		}
-	}()
 
-	fmt.Printf("Waiting for messages [Exchange, Queue] [tracks_topic, %s]", q.Name)
-	<-forever
+		log.Printf("arrival: %s, destination: %s", payload.Arrival, payload.Departure)
+	}
 
     return nil
 }

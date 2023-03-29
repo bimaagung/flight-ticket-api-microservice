@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	trackevent "ticket-service/internal/handler/event/track"
 	httphandler "ticket-service/internal/handler/http/v1"
 	postgresrepository "ticket-service/internal/repository/postgres_repository"
 	"ticket-service/internal/usecase"
@@ -36,6 +38,10 @@ func main() {
 	dbTimezone 			:= viper.GetString(`DB_TIMEZONE`)
 	dbConnectTimeout 	:= viper.GetString(`DB_CONNECT_TIMEOUT`)
 
+	rabbitmqUser := viper.GetString(`RABBITMQ_USER`)
+	rabbitmqPass := viper.GetString(`RABBITMQ_PASSWORD`)
+	rabbitmqHost := viper.GetString(`RABBITMQ_HOST`)
+
 	log.Println("Starting ticket service")
 
 
@@ -63,12 +69,33 @@ func main() {
 	ticketRepositoryPostgres := postgresrepository.NewTicketPostgresRepository(conn)
 	ticketUseCase := usecase.NewTicketUseCase(ticketRepositoryPostgres, trackRepositoryPostgres, airplaneRepositoryPostgres)
 	ticketHttpHandler := httphandler.NewTicketHandler(ticketUseCase)
-
+	
 	ticketHttpHandler.Route(r)
 
+
+	// RabbitMQ connection
+	rabbitConn, err := rabbitmq.NewRabbitMQClient(rabbitmqUser, rabbitmqPass, rabbitmqHost)
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+
+	defer rabbitConn.Close()
+	log.Println("Listening for and consuming RabbitMQ messages...")
+
 	
-	// Handler untuk consumer RabbitMQ
-	go  rabbitmq.ConsumeMessageFromRabbitMQ()
+	go func() {
+		consumer, err := trackevent.NewTrackConsumer(rabbitConn)
+		if err != nil {
+			log.Println(err)
+		}
+
+		err = consumer.Listen("track.INFO")
+		
+		if err != nil {
+			log.Println(err)
+		}
+	}()
 
 	port := viper.GetString("PORT")
 	r.Run(port) 
