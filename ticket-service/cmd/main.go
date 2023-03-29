@@ -6,12 +6,14 @@ import (
 	postgresrepository "ticket-service/internal/repository/postgres_repository"
 	"ticket-service/internal/usecase"
 	"ticket-service/pkg/postgresdb"
+	"ticket-service/pkg/rabbitmq"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
 
 func init() {
+	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
 	
 	err := viper.ReadInConfig()
@@ -35,16 +37,6 @@ func main() {
 	dbConnectTimeout 	:= viper.GetString(`DB_CONNECT_TIMEOUT`)
 
 	log.Println("Starting ticket service")
-
-	// RabbitMQ connection
-	// rabbitConn, err := rabbitmq.NewRabbitMQClient()
-	// if err != nil {
-	// 	log.Println(err)
-	// 	os.Exit(1)
-	// }
-
-	// defer rabbitConn.Close()
-	// log.Println("Listening for and consuming RabbitMQ messages...")
 
 
 	// connect to database
@@ -74,20 +66,9 @@ func main() {
 
 	ticketHttpHandler.Route(r)
 
-	// create consumer
-	// consumer, err := trackevent.NewTrackConsumer(rabbitConn, trackUseCase)
-
-	// if err != nil {
-	// 	log.Panic("Can't create consumer")
-	// }
-
-	// err = consumer.Listen("track.INFO")
-
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-
 	
+	// Handler untuk consumer RabbitMQ
+	go  rabbitmq.ConsumeMessageFromRabbitMQ()
 
 	port := viper.GetString("PORT")
 	r.Run(port) 
