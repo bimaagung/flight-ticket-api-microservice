@@ -60,7 +60,7 @@ func main() {
 
 	// Track
 	trackRepositoryPostgres := postgresrepository.NewTrackRepositoryPostgres(conn)
-	// trackUseCase := usecase.NewTrackUseCase(trackRepositoryPostgres)
+	//trackUseCase := usecase.NewTrackUseCase(trackRepositoryPostgres)
 	
 	// Airplane
 	airplaneRepositoryPostgres := postgresrepository.NewAirplaneRepositoryPostgres(conn)
@@ -85,7 +85,7 @@ func main() {
 
 	
 	go func() {
-		consumer, err := trackevent.NewTrackConsumer(rabbitConn)
+		consumer, err := trackevent.NewTrackConsumer(rabbitConn, conn)
 		if err != nil {
 			log.Println(err)
 		}
