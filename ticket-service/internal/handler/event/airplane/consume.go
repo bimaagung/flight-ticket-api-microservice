@@ -1,4 +1,4 @@
-package trackevent
+package airplaneevent
 
 import (
 	"database/sql"
@@ -10,11 +10,11 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func NewTrackConsumer(conn *amqp.Connection, database *sql.DB, trackUseCase domain.TrackUseCase)(Consumer, error) {
+func NewAirplaneConsumer(conn *amqp.Connection, database *sql.DB, airplaneUseCase domain.AirplaneUseCase)(Consumer, error) {
 	consumer := Consumer{
 		conn: conn,
 		DB: database,
-		trackUseCase: trackUseCase,
+		airplaneUseCase: airplaneUseCase,
 	}
 
 	channel, err := conn.Channel()
@@ -34,7 +34,7 @@ func NewTrackConsumer(conn *amqp.Connection, database *sql.DB, trackUseCase doma
 type Consumer struct {
 	conn *amqp.Connection
 	DB *sql.DB
-	trackUseCase domain.TrackUseCase
+	airplaneUseCase domain.AirplaneUseCase
 }
 
 func (consumer *Consumer) Listen(topics string) error {
@@ -53,7 +53,7 @@ func (consumer *Consumer) Listen(topics string) error {
 	err = ch.QueueBind(
 		q.Name,
 		topics,
-		"tracks_topic",
+		"airplanes_topic",
 		false,
 		nil,
 	)
@@ -70,7 +70,7 @@ func (consumer *Consumer) Listen(topics string) error {
 		}
 
 		for d := range message {
-			var payload domain.Track
+			var payload domain.Airplane
 
 			err = json.Unmarshal(d.Body, &payload)
 			
@@ -80,13 +80,14 @@ func (consumer *Consumer) Listen(topics string) error {
 
 			fmt.Println(payload)
 
-			id, err := consumer.trackUseCase.Add(&payload)
+			id, err := consumer.airplaneUseCase.Add(&payload)
 
 			if err != nil {
 				log.Println("error: ", err)
 			}
 			
-			log.Printf("success add track with id: %s", id)
+			log.Printf("success add airplane with id: %s", id)
+
 		}
 	}
 }

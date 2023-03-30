@@ -46,6 +46,8 @@ func (e *Emitter) PushToQueue(payload *domain.Airplane, severity string) error {
 
 	log.Println("Pushing to channel")
 
+	log.Println(payload)
+
 	j , err := json.MarshalIndent(&payload, "", "\t")
 
 	if err != nil {

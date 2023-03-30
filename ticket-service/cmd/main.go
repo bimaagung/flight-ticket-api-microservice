@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	airplaneevent "ticket-service/internal/handler/event/airplane"
 	trackevent "ticket-service/internal/handler/event/track"
 	httphandler "ticket-service/internal/handler/http/v1"
 	postgresrepository "ticket-service/internal/repository/postgres_repository"
@@ -64,6 +65,7 @@ func main() {
 	
 	// Airplane
 	airplaneRepositoryPostgres := postgresrepository.NewAirplaneRepositoryPostgres(conn)
+	airplaneUseCase := usecase.NewAirplaneUseCase(airplaneRepositoryPostgres)
 
 	// Ticket
 	ticketRepositoryPostgres := postgresrepository.NewTicketPostgresRepository(conn)
@@ -91,6 +93,19 @@ func main() {
 		}
 
 		err = consumer.Listen("track.INFO")
+		
+		if err != nil {
+			log.Println(err)
+		}
+	}()
+	
+	go func() {
+		consumer, err := airplaneevent.NewAirplaneConsumer(rabbitConn, conn, airplaneUseCase)
+		if err != nil {
+			log.Println(err)
+		}
+
+		err = consumer.Listen("airplane.INFO")
 		
 		if err != nil {
 			log.Println(err)

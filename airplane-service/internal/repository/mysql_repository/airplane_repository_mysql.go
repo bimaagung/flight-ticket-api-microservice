@@ -58,7 +58,11 @@ func (repository *airplaneRepositoryMysql) Insert(airplane *domain.Airplane)(str
 		return "", err
 	}
 
-	err = emitter.PushToQueue(airplane, "airplane.INFO")
+	err = emitter.PushToQueue(&domain.Airplane{
+		Id: ID,
+		FlightCode: airplane.FlightCode,
+		Seats: airplane.Seats,
+	}, "airplane.INFO")
 	
 	if err != nil {
 		return "", err

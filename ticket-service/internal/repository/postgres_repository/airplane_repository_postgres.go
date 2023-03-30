@@ -47,3 +47,53 @@ func (repository *airplaneRepositoryPostgres) VerifyAirplaneAvailable(idAirplane
 
 	return nil
 }
+
+func (repository *airplaneRepositoryPostgres) Insert(airplane *domain.Airplane)(string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
+	defer cancel()
+
+	var ID uuid.UUID = uuid.MustParse(airplane.Id.String())
+	query := `insert into airplanes (id, flight_code, seats) values ($1, $2, $3) returning id`
+
+	err := repository.DB.QueryRowContext(ctx, query,
+		ID,
+		airplane.FlightCode,
+		airplane.Seats,
+	).Scan(&ID)
+
+	if err != nil {
+		return "", err
+	}
+
+	return ID.String(), nil
+}
+
+
+func (repository *airplaneRepositoryPostgres) CheckAirplaneExist(flightCode string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
+	defer cancel()
+
+	var airplane domain.Airplane
+	query := `select id from airplanes where flight_code = $1`
+
+	row := repository.DB.QueryRowContext(ctx, query, flightCode)
+
+	if row.Err() != nil {
+		return row.Err()
+	}
+
+	err := row.Scan(
+		&airplane.Id,
+	)
+
+	if err == sql.ErrNoRows{
+		return nil
+	}
+
+	if err != sql.ErrNoRows{
+		return errors.New("airplane is exist")
+	}
+
+	return err
+
+}

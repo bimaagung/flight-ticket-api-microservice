@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"log"
 	"ticket-service/domain"
 )
 
@@ -17,7 +16,6 @@ type trackUseCaseImpl struct {
 
 func(useCase *trackUseCaseImpl) Add(payload *domain.Track)(string, error){
 	
-	log.Println(payload)
 	err := useCase.TrackRepositoryPostgres.CheckTrackExist(payload.Arrival, payload.Departure)
 
 	if err != nil {

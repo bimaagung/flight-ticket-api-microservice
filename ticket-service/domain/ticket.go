@@ -29,7 +29,7 @@ type TicketReq struct {
 type TicketRes struct {
 	Id            	uuid.UUID   	`json:"id"`
 	Track       	TrackRes    	`json:"track,omitempty"`
-	AirplaneId     	AirplaneRes    	`json:"airplane,omitempty"`
+	AirplaneId     	Airplane    	`json:"airplane,omitempty"`
 	Date    		int 			`json:"date,omitempty"`
 	Time    		int 			`json:"time,omitempty"`
 	Price    		int 			`json:"price,omitempty"`
