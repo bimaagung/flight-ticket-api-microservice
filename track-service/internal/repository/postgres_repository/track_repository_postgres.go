@@ -51,7 +51,12 @@ func (repository *trackRepositoryPostgres) Insert(track *domain.Track)(string, e
 		return "", err
 	}
 
-	err = emitter.PushToQueue(track, "track.INFO")
+	err = emitter.PushToQueue(&domain.TrackRes{
+		Id: ID.String(),
+		Arrival: track.Arrival,
+		Departure: track.Departure,
+		LongFlight: track.LongFlight,
+	}, "track.INFO")
 	
 	if err != nil {
 		return "", err

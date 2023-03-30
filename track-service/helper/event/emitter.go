@@ -35,8 +35,10 @@ func NewEventEmitter(conn *amqp.Connection) (Emitter, error) {
 	return emitter, nil
 }
 
-func (e *Emitter) PushToQueue(payload *domain.Track, severity string) error {
+func (e *Emitter) PushToQueue(payload *domain.TrackRes, severity string) error {
 	channel, err := e.connection.Channel()
+
+	log.Println(payload)
 
 	if err != nil {
 		return err

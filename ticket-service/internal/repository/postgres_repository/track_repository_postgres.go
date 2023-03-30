@@ -28,7 +28,7 @@ func (repository *trackRepositoryPostgres) CheckTrackExist(arrival string, depar
 	defer cancel()
 
 	var track domain.Track
-	query := `select id from tracks where arrival = $1 and departure = $2 and deleted_at is null`
+	query := `select id from tracks where arrival = $1 and departure = $2`
 
 	row := repository.DB.QueryRowContext(ctx, query, arrival, departure)
 
@@ -81,7 +81,7 @@ func (repository *trackRepositoryPostgres) Insert(track *domain.Track)(string, e
 	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 
-	var ID uuid.UUID = uuid.New()
+	var ID uuid.UUID = uuid.MustParse(track.Id.String())
 	query := `insert into tracks (id, arrival, departure, long_flight) values ($1, $2, $3, $4) returning id`
 
 	err := repository.DB.QueryRowContext(ctx, query,
