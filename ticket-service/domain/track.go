@@ -7,7 +7,7 @@ import (
 )
 
 type Track struct {
-	Id            	uuid.UUID   `json:"id"`
+	Id            	uuid.UUID  	`json:"id"`
 	Arrival       	string    	`json:"arrival,omitempty"`
 	Departure     	string    	`json:"departure,omitempty"`
 	LongFlight    	int 		`json:"long_flight,omitempty"`

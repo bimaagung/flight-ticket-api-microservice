@@ -1,7 +1,7 @@
 DB=postgres://postgres:12345678@localhost:5432/ticket?sslmode=disable
-N=3
+N=4
 V=3
-TITLE=create_airplanes_ticket_table
+TITLE=change_type_column_id_table_airplanes
 
 start:
 	go run cmd/main.go
@@ -16,11 +16,11 @@ migrate-create:
 	migrate create -ext sql -dir database/migrations -seq "$(TITLE)"
 
 migrate-up:
-	migrate -database "${DB}" -path database/migrations up $(N)
+	migrate -database "${DB}" -path database/migrations up
 
 
 migrate-down:
-	migrate -database "${DB}" -path database/migrations down $(N)
+	migrate -database "${DB}" -path database/migrations down
 
 
 migrate-to-version: 

@@ -10,8 +10,7 @@ type Ticket struct {
 	Id            	uuid.UUID   	`json:"id"`
 	TrackId       	uuid.UUID    	`json:"track_id,omitempty"`
 	AirplaneId     	uuid.UUID    	`json:"airplane_id,omitempty"`
-	Date    		time.Time 		`json:"date,omitempty"`
-	Time    		time.Time 		`json:"time,omitempty"`
+	Datetime    	time.Time 		`json:"date,omitempty"`
 	Price    		int 			`json:"price,omitempty"`
 	CreatedAt 		time.Time 		`json:"created_at,omitempty"`
 	UpdatedAt 		time.Time 		`json:"updated_at,omitempty"`
@@ -21,13 +20,12 @@ type Ticket struct {
 type TicketReq struct {
 	TrackId       	string    	`json:"track_id,omitempty"`
 	AirplaneId     	string    	`json:"airplane_id,omitempty"`
-	Date    		time.Time 		`json:"date,omitempty"`
-	Time    		time.Time 		`json:"time,omitempty"`
-	Price    		int 			`json:"price,omitempty"`
+	Datetime   		string 		`json:"datetime,omitempty"`
+	Price    		int 		`json:"price,omitempty"`
 }
 
 type TicketRes struct {
-	Id            	uuid.UUID   	`json:"id"`
+	Id            	string   	`json:"id"`
 	Track       	TrackRes    	`json:"track,omitempty"`
 	AirplaneId     	Airplane    	`json:"airplane,omitempty"`
 	Date    		int 			`json:"date,omitempty"`
@@ -40,7 +38,7 @@ type TicketRes struct {
 
 type TicketRepositoryPostgres interface {
 	Insert(ticket *Ticket)(string, error)
-	CheckTicketExist(trackId uuid.UUID, airplaneId uuid.UUID, date time.Time, time time.Time) error
+	CheckTicketExist(trackId string, airplaneId string, datetime time.Time) error
 	Delete(id string) error
 	VerifyTicketAvailable(idTicket string) error
 	Update(idTicket string, ticket *Ticket) error

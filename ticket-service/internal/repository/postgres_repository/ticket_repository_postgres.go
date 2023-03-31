@@ -26,33 +26,33 @@ func(repository *ticketRepositoryPostgres) Insert(ticket *domain.Ticket)(string,
 	ctx, cancel := context.WithTimeout(context.Background(),repository.DBTimeout)
 	defer cancel()
 
-	var ID uuid.UUID = uuid.New()
-	query := `insert into ticket (id, ticket_id, airplane_id, date, time, price) VALUES ($1, $2, $3, $4, $5, $6)`
+	var id uuid.UUID = uuid.New()
+
+	query := `insert into tickets (id, track_id, airplane_id, datetime, price) VALUES ($1, $2, $3, $4, $5) returning id`
 
 	err := repository.DB.QueryRowContext(ctx, query, 
-		ID,
+		id,
 		ticket.TrackId,
 		ticket.AirplaneId,
-		ticket.Date,
-		ticket.Time,
+		ticket.Datetime,
 		ticket.Price,
-	).Scan(&ID)
+	).Scan(&id)
 
 	if err != nil {
 		return "", err
 	}
 
-	return ID.String(), nil
+	return id.String(), nil
 }
 
-func (repository *ticketRepositoryPostgres) CheckTicketExist(trackId uuid.UUID, airplaneId uuid.UUID, date time.Time, time time.Time) error {
+func (repository *ticketRepositoryPostgres) CheckTicketExist(trackId string, airplaneId string, datetime time.Time) error {
 	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 
 	var ticket domain.Ticket
-	query := `select id from tickets where track_id = $1 and airplane_id = $2 and date = $3 and time = $4 and deleted_at is null`
+	query := `select id from tickets where track_id = $1 and airplane_id = $2 and datetime = $3 and deleted_at is null`
 
-	row := repository.DB.QueryRowContext(ctx, query, trackId, airplaneId, date, time)
+	row := repository.DB.QueryRowContext(ctx, query, trackId, airplaneId, datetime)
 
 	if row.Err() != nil {
 		return row.Err()
@@ -79,16 +79,11 @@ func (repository *ticketRepositoryPostgres) Delete(idTicket string) error {
 	defer cancel()
 
 	deletedAt := time.Now()
-	
-	uuidConvert, err := uuid.Parse(idTicket)
 
-	if err != nil {
-		return errors.New("ticket not found")
-	}
 	
 	query := `update tickets set deleted_at = $1 where id = $2`
 
-	_, err = repository.DB.QueryContext(ctx, query, deletedAt, uuidConvert)
+	_, err := repository.DB.QueryContext(ctx, query, deletedAt, idTicket)
 	
 	if err != nil {
 		return err
@@ -100,16 +95,10 @@ func (repository *ticketRepositoryPostgres) Delete(idTicket string) error {
 func (repository *ticketRepositoryPostgres) VerifyTicketAvailable(idTicket string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
-
-	uuidConvert, err := uuid.Parse(idTicket)
-
-	if err != nil {
-		return errors.New("ticket not found")
-	}
 	
 	query := `select * from tickets where id = $1 and deleted_at is null`
 
-	_, err = repository.DB.QueryContext(ctx, query, uuidConvert)
+	_, err := repository.DB.QueryContext(ctx, query, idTicket)
 	
 	if err != nil {
 		if err == sql.ErrNoRows{
@@ -128,22 +117,15 @@ func (repository *ticketRepositoryPostgres) Update(idTicket string, ticket *doma
 
 	upatedAt := time.Now()
 
-	uuidConvert, err := uuid.Parse(idTicket)
-
-	if err != nil {
-		return errors.New("ticket not found")
-	}
-
-	query := `update tickets set track_id = $1, airplane_id = $2, date = $3, time = $4, price = $5, updated_at = $7 where id = $5`
+	query := `update tickets set track_id = $1, airplane_id = $2, datetime = $3, price = $5, updated_at = $7 where id = $5`
 
 	result, err := repository.DB.ExecContext(ctx, query, 
 		ticket.TrackId,
 		ticket.AirplaneId,
-		ticket.Date,
-		ticket.Time,
+		ticket.Datetime,
 		ticket.Price,
 		upatedAt,
-		uuidConvert,
+		idTicket,
 	)
 
 	if err != nil {

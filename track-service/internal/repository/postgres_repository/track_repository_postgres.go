@@ -190,10 +190,12 @@ func (repository *trackRepositoryPostgres) VerifyTrackAvailable(idTrack string) 
 	if err != nil {
 		return errors.New("track not found")
 	}
-	
-	query := `select * from tracks where id = $1 and deleted_at is null`
 
-	_, err = repository.DB.QueryContext(ctx, query, uuidConvert)
+	var Id uuid.UUID
+	
+	query := `select id from tracks where id = $1 and deleted_at is null`
+
+	err = repository.DB.QueryRowContext(ctx, query, uuidConvert).Scan(&Id)
 	
 	if err != nil {
 		if err == sql.ErrNoRows{

@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"errors"
 	"ticket-service/domain"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -28,27 +28,21 @@ type ticketUseCaseImpl struct {
 }
 
 func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
-	
-	trackId, err := uuid.Parse(payload.TrackId)
+
+	parseTime, err := time.Parse(time.RFC3339, payload.Datetime)
 
 	if err != nil {
-		return "", errors.New("can't add ticket")
-	}
-
-	airplaneId, err := uuid.Parse(payload.AirplaneId)
-
-	if err != nil {
-		return "", errors.New("can't add ticket")
+		return "", err
 	}
 
 	ticket := &domain.Ticket{
-		TrackId: trackId,
-		AirplaneId: airplaneId,
-		Date: payload.Date,
-		Time: payload.Time,
+		TrackId: uuid.MustParse(payload.TrackId),
+		AirplaneId: uuid.MustParse(payload.AirplaneId),
+		Datetime: parseTime,
+		Price: payload.Price,
 	}
 
-	err = useCase.TicketRepositoryPostgres.CheckTicketExist(trackId, airplaneId, ticket.Date, ticket.Time)
+	err = useCase.TicketRepositoryPostgres.CheckTicketExist(payload.TrackId, payload.AirplaneId, ticket.Datetime)
 
 	if err != nil {
 		return "", err
@@ -61,7 +55,7 @@ func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 	}
 
 	// check if airplane not found
-	err = useCase.AirplaneRepositoryPostgres.VerifyAirplaneAvailable(payload.TrackId)
+	err = useCase.AirplaneRepositoryPostgres.VerifyAirplaneAvailable(payload.AirplaneId)
 	if err != nil {
 		return "", err
 	}
@@ -93,24 +87,17 @@ func(useCase *ticketUseCaseImpl) Delete(id string) error {
 }
 
 func(useCase *ticketUseCaseImpl) Update(idTicket string, payload *domain.TicketReq) error {
-	
-	trackId, err := uuid.Parse(payload.TrackId)
+
+	parseTime, err := time.Parse(time.RFC3339, payload.Datetime)
 
 	if err != nil {
-		return errors.New("can't update ticket")
-	}
-
-	airplaneId, err := uuid.Parse(payload.AirplaneId)
-
-	if err != nil {
-		return errors.New("can't updated ticket")
+		return err
 	}
 
 	ticket := &domain.Ticket{
-		TrackId: trackId,
-		AirplaneId: airplaneId,
-		Date: payload.Date,
-		Time: payload.Time,
+		TrackId: uuid.MustParse(payload.TrackId),
+		AirplaneId: uuid.MustParse(payload.AirplaneId),
+		Datetime: parseTime,
 	}
 
 	err = useCase.TicketRepositoryPostgres.VerifyTicketAvailable(idTicket)

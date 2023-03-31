@@ -1,0 +1,3 @@
+ALTER TABLE tickets ADD COLUMN "time" TIMESTAMP WITH TIME zone;
+ALTER TABLE tickets RENAME COLUMN "datetime" TO "datetime";
+ALTER TABLE tickets ALTER COLUMN "date" TYPE DATE;

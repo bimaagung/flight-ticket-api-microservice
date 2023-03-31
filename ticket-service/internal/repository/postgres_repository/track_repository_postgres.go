@@ -23,6 +23,28 @@ type trackRepositoryPostgres struct {
 	DBTimeout time.Duration
 }
 
+func (repository *trackRepositoryPostgres) Insert(track *domain.Track)(string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
+	defer cancel()
+
+	var ID string
+	query := `insert into tracks (id, arrival, departure, long_flight) values ($1, $2, $3, $4) returning id`
+
+	err := repository.DB.QueryRowContext(ctx, query,
+		track.Id,
+		track.Arrival,
+		track.Departure,
+		track.LongFlight,
+	).Scan(&ID)
+
+	if err != nil {
+		return "", err
+	}
+
+	return ID, nil
+}
+
+
 func (repository *trackRepositoryPostgres) CheckTrackExist(arrival string, departure string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
@@ -56,16 +78,18 @@ func (repository *trackRepositoryPostgres) VerifyTrackAvailable(idTrack string) 
 	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 
-	uuidConvert, err := uuid.Parse(idTrack)
+	var id string
 
+	parseId, err := uuid.Parse(idTrack)
+	
 	if err != nil {
-		return errors.New("track not found")
+		return err
 	}
-	
-	query := `select * from tracks where id = $1 and deleted_at is null`
 
-	_, err = repository.DB.QueryContext(ctx, query, uuidConvert)
-	
+	query := "select id from tracks where id = $1"
+
+	err = repository.DB.QueryRowContext(ctx, query, parseId).Scan(&id)
+
 	if err != nil {
 		if err == sql.ErrNoRows{
 			return errors.New("track not found")
@@ -75,25 +99,4 @@ func (repository *trackRepositoryPostgres) VerifyTrackAvailable(idTrack string) 
 	}
 
 	return nil
-}
-
-func (repository *trackRepositoryPostgres) Insert(track *domain.Track)(string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
-	defer cancel()
-
-	var ID uuid.UUID = uuid.MustParse(track.Id.String())
-	query := `insert into tracks (id, arrival, departure, long_flight) values ($1, $2, $3, $4) returning id`
-
-	err := repository.DB.QueryRowContext(ctx, query,
-		ID,
-		track.Arrival,
-		track.Departure,
-		track.LongFlight,
-	).Scan(&ID)
-
-	if err != nil {
-		return "", err
-	}
-
-	return ID.String(), nil
 }

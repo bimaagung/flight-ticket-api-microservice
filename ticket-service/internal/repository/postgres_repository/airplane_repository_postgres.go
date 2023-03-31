@@ -23,19 +23,41 @@ type airplaneRepositoryPostgres struct {
 	DBTimeout time.Duration
 }
 
+func (repository *airplaneRepositoryPostgres) Insert(airplane *domain.Airplane)(string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
+	defer cancel()
+
+	var ID string
+	query := `insert into airplanes (id, flight_code, seats) values ($1, $2, $3) returning id`
+
+	err := repository.DB.QueryRowContext(ctx, query,
+		airplane.Id,
+		airplane.FlightCode,
+		airplane.Seats,
+	).Scan(&ID)
+
+	if err != nil {
+		return "", err
+	}
+
+	return ID, nil
+}
+
 func (repository *airplaneRepositoryPostgres) VerifyAirplaneAvailable(idAirplane string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 
-	uuidConvert, err := uuid.Parse(idAirplane)
-
-	if err != nil {
-		return errors.New("airplane not found")
-	}
+	var id uuid.UUID
+	parseId, err := uuid.Parse(idAirplane)
 	
-	query := `select * from airplanes where id = $1 and deleted_at is null`
+	if err != nil {
+		return err
+	}
 
-	_, err = repository.DB.QueryContext(ctx, query, uuidConvert)
+	
+	query := `select * from airplanes where id = $1`
+
+	err = repository.DB.QueryRowContext(ctx, query, parseId).Scan(&id)
 	
 	if err != nil {
 		if err == sql.ErrNoRows{
@@ -47,27 +69,6 @@ func (repository *airplaneRepositoryPostgres) VerifyAirplaneAvailable(idAirplane
 
 	return nil
 }
-
-func (repository *airplaneRepositoryPostgres) Insert(airplane *domain.Airplane)(string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
-	defer cancel()
-
-	var ID uuid.UUID = uuid.MustParse(airplane.Id.String())
-	query := `insert into airplanes (id, flight_code, seats) values ($1, $2, $3) returning id`
-
-	err := repository.DB.QueryRowContext(ctx, query,
-		ID,
-		airplane.FlightCode,
-		airplane.Seats,
-	).Scan(&ID)
-
-	if err != nil {
-		return "", err
-	}
-
-	return ID.String(), nil
-}
-
 
 func (repository *airplaneRepositoryPostgres) CheckAirplaneExist(flightCode string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
