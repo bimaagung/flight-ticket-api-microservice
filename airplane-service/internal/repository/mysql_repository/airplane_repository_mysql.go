@@ -183,11 +183,11 @@ func (repository *airplaneRepositoryMysql) VerifyAirplaneAvailable(idAirplane st
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 	
-	var ID string
+	var id string
 
 	query := "select id from airplanes where id = ? and deleted_at is null"
 
-	err := repository.DB.QueryRowContext(ctx, query, idAirplane).Scan(&ID)
+	err := repository.DB.QueryRowContext(ctx, query, idAirplane).Scan(&id)
 	
 	if err != nil {
 		if err == sql.ErrNoRows{

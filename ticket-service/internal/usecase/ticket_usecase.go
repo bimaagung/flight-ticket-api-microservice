@@ -73,6 +73,7 @@ func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 func(useCase *ticketUseCaseImpl) Delete(id string) error {
 
 	err := useCase.TicketRepositoryPostgres.VerifyTicketAvailable(id)
+	
 	if err != nil {
 		return err
 	}

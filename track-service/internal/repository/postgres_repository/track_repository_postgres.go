@@ -188,7 +188,7 @@ func (repository *trackRepositoryPostgres) VerifyTrackAvailable(idTrack string) 
 	uuidConvert, err := uuid.Parse(idTrack)
 
 	if err != nil {
-		return errors.New("track not found")
+		return err
 	}
 
 	var Id uuid.UUID

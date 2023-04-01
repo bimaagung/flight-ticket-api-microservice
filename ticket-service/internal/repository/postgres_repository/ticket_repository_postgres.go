@@ -80,10 +80,15 @@ func (repository *ticketRepositoryPostgres) Delete(idTicket string) error {
 
 	deletedAt := time.Now()
 
-	
+	parseId, err := uuid.Parse(idTicket)
+
+	if err != nil {
+		return errors.New("track not found")
+	}
+
 	query := `update tickets set deleted_at = $1 where id = $2`
 
-	_, err := repository.DB.QueryContext(ctx, query, deletedAt, idTicket)
+	_, err = repository.DB.QueryContext(ctx, query, deletedAt, parseId)
 	
 	if err != nil {
 		return err
@@ -96,9 +101,11 @@ func (repository *ticketRepositoryPostgres) VerifyTicketAvailable(idTicket strin
 	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 	
-	query := `select * from tickets where id = $1 and deleted_at is null`
+	var id uuid.UUID
 
-	_, err := repository.DB.QueryContext(ctx, query, idTicket)
+	query := `select id from tickets where id = $1 and deleted_at is null`
+
+	err := repository.DB.QueryRowContext(ctx, query, idTicket).Scan(&id)
 	
 	if err != nil {
 		if err == sql.ErrNoRows{
