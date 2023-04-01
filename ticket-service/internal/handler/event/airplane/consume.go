@@ -3,7 +3,6 @@ package airplaneevent
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"ticket-service/domain"
 
@@ -75,10 +74,8 @@ func (consumer *Consumer) Listen(topics string) error {
 			err = json.Unmarshal(d.Body, &payload)
 			
 			if err != nil {
-				fmt.Println("error: ", err)
+				log.Println("error: ", err)
 			}
-
-			fmt.Println(payload)
 
 			id, err := consumer.airplaneUseCase.Add(&payload)
 

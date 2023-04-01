@@ -27,20 +27,21 @@ func (repository *airplaneRepositoryPostgres) Insert(airplane *domain.Airplane)(
 	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 
-	var ID string
+	var id string
+
 	query := `insert into airplanes (id, flight_code, seats) values ($1, $2, $3) returning id`
 
 	err := repository.DB.QueryRowContext(ctx, query,
 		airplane.Id,
 		airplane.FlightCode,
 		airplane.Seats,
-	).Scan(&ID)
+	).Scan(&id)
 
 	if err != nil {
 		return "", err
 	}
 
-	return ID, nil
+	return id, nil
 }
 
 func (repository *airplaneRepositoryPostgres) VerifyAirplaneAvailable(idAirplane string) error {
@@ -55,7 +56,7 @@ func (repository *airplaneRepositoryPostgres) VerifyAirplaneAvailable(idAirplane
 	}
 
 	
-	query := `select * from airplanes where id = $1`
+	query := `select id from airplanes where id = $1`
 
 	err = repository.DB.QueryRowContext(ctx, query, parseId).Scan(&id)
 	
@@ -75,6 +76,7 @@ func (repository *airplaneRepositoryPostgres) CheckAirplaneExist(flightCode stri
 	defer cancel()
 
 	var airplane domain.Airplane
+
 	query := `select id from airplanes where flight_code = $1`
 
 	row := repository.DB.QueryRowContext(ctx, query, flightCode)
