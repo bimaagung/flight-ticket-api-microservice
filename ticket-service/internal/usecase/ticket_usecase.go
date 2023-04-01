@@ -35,9 +35,21 @@ func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 		return "", err
 	}
 
+	parseTrackId, err := uuid.Parse(payload.TrackId)
+
+	if err != nil {
+		return "", err
+	}
+
+	parseAirplalneId, err := uuid.Parse(payload.AirplaneId)
+
+	if err != nil {
+		return "", err
+	}
+
 	ticket := &domain.Ticket{
-		TrackId: uuid.MustParse(payload.TrackId),
-		AirplaneId: uuid.MustParse(payload.AirplaneId),
+		TrackId: parseTrackId,
+		AirplaneId: parseAirplalneId,
 		Datetime: parseTime,
 		Price: payload.Price,
 	}
@@ -73,7 +85,7 @@ func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 func(useCase *ticketUseCaseImpl) Delete(id string) error {
 
 	err := useCase.TicketRepositoryPostgres.VerifyTicketAvailable(id)
-	
+
 	if err != nil {
 		return err
 	}
@@ -95,14 +107,41 @@ func(useCase *ticketUseCaseImpl) Update(idTicket string, payload *domain.TicketR
 		return err
 	}
 
+	parseTrackId, err := uuid.Parse(payload.TrackId)
+
+	if err != nil {
+		return err
+	}
+
+	parseAirplalneId, err := uuid.Parse(payload.AirplaneId)
+
+	if err != nil {
+		return err
+	}
+
 	ticket := &domain.Ticket{
-		TrackId: uuid.MustParse(payload.TrackId),
-		AirplaneId: uuid.MustParse(payload.AirplaneId),
+		TrackId: parseTrackId,
+		AirplaneId: parseAirplalneId,
 		Datetime: parseTime,
+		Price: payload.Price,
 	}
 
 	err = useCase.TicketRepositoryPostgres.VerifyTicketAvailable(idTicket)
 
+	if err != nil {
+		return err
+	}
+
+	// check if track not found
+	err = useCase.TrackRepositoryPostgres.VerifyTrackAvailable(payload.TrackId)
+	
+	if err != nil {
+		return err
+	}
+
+	// check if airplane not found
+	err = useCase.AirplaneRepositoryPostgres.VerifyAirplaneAvailable(payload.AirplaneId)
+	
 	if err != nil {
 		return err
 	}

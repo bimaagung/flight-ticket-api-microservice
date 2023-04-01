@@ -124,7 +124,13 @@ func (repository *ticketRepositoryPostgres) Update(idTicket string, ticket *doma
 
 	upatedAt := time.Now()
 
-	query := `update tickets set track_id = $1, airplane_id = $2, datetime = $3, price = $5, updated_at = $7 where id = $5`
+	parseId, err := uuid.Parse(idTicket)
+
+	if err != nil {
+		return err
+	}
+
+	query := `update tickets set track_id = $1, airplane_id = $2, datetime = $3, price = $4, updated_at = $5 where id = $6 and deleted_at is null`
 
 	result, err := repository.DB.ExecContext(ctx, query, 
 		ticket.TrackId,
@@ -132,7 +138,7 @@ func (repository *ticketRepositoryPostgres) Update(idTicket string, ticket *doma
 		ticket.Datetime,
 		ticket.Price,
 		upatedAt,
-		idTicket,
+		parseId,
 	)
 
 	if err != nil {
