@@ -25,15 +25,15 @@ type TicketReq struct {
 }
 
 type TicketRes struct {
-	Id            	string   	`json:"id"`
-	Track       	TrackRes    	`json:"track,omitempty"`
-	AirplaneId     	Airplane    	`json:"airplane,omitempty"`
-	Date    		int 			`json:"date,omitempty"`
-	Time    		int 			`json:"time,omitempty"`
-	Price    		int 			`json:"price,omitempty"`
-	CreatedAt 		time.Time 		`json:"created_at,omitempty"`
-	UpdatedAt 		time.Time 		`json:"updated_at,omitempty"`
-	DeleteAt 		bool 			`json:"deleted_at,omitempty"`
+	Id            		string   		`json:"id"`
+	Track       		*TrackRes    	`json:"track,omitempty"`
+	Airplane     		*AirplaneRes    	`json:"airplane,omitempty"`
+	ArrivalDatetime   	time.Time 		`json:"arrival_datetime,omitempty"`
+	DepartureDatetime   time.Time 		`json:"departure_datetime,omitempty"`
+	Price    			int 			`json:"price,omitempty"`
+	CreatedAt 			time.Time 		`json:"created_at,omitempty"`
+	UpdatedAt 			time.Time 		`json:"updated_at,omitempty"`
+	DeleteAt 			bool 			`json:"deleted_at,omitempty"`
 }
 
 type TicketRepositoryPostgres interface {
@@ -42,10 +42,12 @@ type TicketRepositoryPostgres interface {
 	Delete(id string) error
 	VerifyTicketAvailable(idTicket string) error
 	Update(idTicket string, ticket *Ticket) error
+	GetById(idTicket string)(*Ticket, *Track, *Airplane, error)
 }
 
 type TicketUseCase interface {
 	Add(payload *TicketReq)(string, error)
 	Delete(id string) error
 	Update(idTicket string, ticket *TicketReq) error
+	GetById(idTicket string)(*TicketRes, error)
 }

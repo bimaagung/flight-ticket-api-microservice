@@ -81,7 +81,6 @@ func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 	return id, nil
 }
 
-
 func(useCase *ticketUseCaseImpl) Delete(id string) error {
 
 	err := useCase.TicketRepositoryPostgres.VerifyTicketAvailable(id)
@@ -153,4 +152,42 @@ func(useCase *ticketUseCaseImpl) Update(idTicket string, payload *domain.TicketR
 	}
 
 	return nil
+}
+
+func(useCase *ticketUseCaseImpl) GetById(id string)(*domain.TicketRes, error){
+
+	ticket, track ,airplane, err := useCase.TicketRepositoryPostgres.GetById(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	durasi := time.Duration(track.LongFlight) * time.Minute
+	arrivalDatetime := ticket.Datetime.Add(durasi) 
+
+	trackRest := &domain.TrackRes{
+		Id: track.Id.String(),
+		Arrival: track.Arrival,
+		Departure: track.Departure,
+		LongFlight: track.LongFlight,
+	}
+
+	airplaneRest := &domain.AirplaneRes{
+		Id: airplane.Id.String(),
+		FlightCode: airplane.FlightCode,
+		Seats: airplane.Seats,
+	}
+
+	result := &domain.TicketRes{
+		Id: 				ticket.Id.String(),
+		Track: 				trackRest,
+		Airplane: 			airplaneRest,
+		ArrivalDatetime: 	arrivalDatetime,
+		DepartureDatetime: 	ticket.Datetime,
+		Price: 				ticket.Price,
+		CreatedAt: 			ticket.CreatedAt,
+		UpdatedAt: 			ticket.UpdatedAt,
+	} 
+
+	return result, nil
 }

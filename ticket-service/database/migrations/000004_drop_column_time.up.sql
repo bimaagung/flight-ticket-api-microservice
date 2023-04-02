@@ -1,3 +1,0 @@
-ALTER TABLE tickets DROP COLUMN "time";
-ALTER TABLE tickets ALTER COLUMN "date" TYPE TIMESTAMP WITH TIME zone;
-ALTER TABLE tickets RENAME COLUMN "date" TO "datetime";

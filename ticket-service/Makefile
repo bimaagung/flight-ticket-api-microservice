@@ -1,7 +1,7 @@
 DB=postgres://postgres:12345678@localhost:5432/ticket?sslmode=disable
-N=4
-V=3
-TITLE=change_type_column_id_table_airplanes
+N=2
+V=2
+TITLE=relation_table_ticket_and_track
 
 start:
 	go run cmd/main.go

@@ -157,3 +157,49 @@ func (repository *ticketRepositoryPostgres) Update(idTicket string, ticket *doma
 
 	return nil
 }
+
+func (repository *ticketRepositoryPostgres) GetById(idTicket string)(*domain.Ticket, *domain.Track, *domain.Airplane, error){
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
+	defer cancel()
+
+	ticket := &domain.Ticket{}
+	track := &domain.Track{}
+	airplane := &domain.Airplane{}
+	
+	
+	parseId, err := uuid.Parse(idTicket)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	query := `select t.id, t.datetime, t.price, tr.id, tr.arrival, tr.departure, tr.long_flight, a.id, a.flight_code, a.seats, t.created_at, t.updated_at 
+			from tickets t
+			inner join airplanes a on t.airplane_id = a.id 
+			inner join tracks tr on t.track_id = tr.id 
+			where t.id = $1 and t.deleted_at is null`
+
+	err = repository.DB.QueryRowContext(ctx, query, parseId).Scan(
+		&ticket.Id, 
+		&ticket.Datetime, 
+		&ticket.Price, 
+		&track.Id, 
+		&track.Arrival, 
+		&track.Departure,
+		&track.LongFlight,
+		&airplane.Id, 
+		&airplane.FlightCode, 
+		&airplane.Seats, 
+		&ticket.CreatedAt,
+		&ticket.UpdatedAt,
+	)
+	
+	if err != nil {
+		if err == sql.ErrNoRows{
+			return nil, nil, nil, errors.New("ticket not found")
+		}
+
+		return nil, nil, nil, err
+	}
+
+	return ticket, track, airplane, nil
+}
