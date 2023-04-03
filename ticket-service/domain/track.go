@@ -27,6 +27,7 @@ type TrackRepositoryPostgres interface {
 	CheckTrackExist(arrival string, depature string) error
 	VerifyTrackAvailable(idTrack string) error
 	Insert(track *Track)(string, error)
+	List()([]*Track, error)
 }
 
 type TrackUseCase interface {

@@ -100,3 +100,43 @@ func (repository *airplaneRepositoryPostgres) CheckAirplaneExist(flightCode stri
 	return err
 
 }
+
+func (repository *airplaneRepositoryPostgres) List()([]*domain.Airplane, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
+	defer cancel()
+
+	var airplanes []*domain.Airplane 
+
+	query := `select id, flight_code, seats, created_at, updated_at from airplanes where deleted_at is null`
+
+	rows, err := repository.DB.QueryContext(ctx, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+
+		var airplane domain.Airplane 
+
+		err := rows.Scan(
+			&airplane.Id, 
+			&airplane.FlightCode, 
+			&airplane.Seats, 
+			&airplane.CreatedAt,
+			&airplane.UpdatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		airplanes = append(airplanes, &airplane)
+
+	}
+
+	return airplanes, nil
+	
+}

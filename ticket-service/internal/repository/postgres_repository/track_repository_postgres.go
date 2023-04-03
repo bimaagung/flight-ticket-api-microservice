@@ -100,3 +100,44 @@ func (repository *trackRepositoryPostgres) VerifyTrackAvailable(idTrack string) 
 
 	return nil
 }
+
+func (repository *trackRepositoryPostgres) List()([]*domain.Track, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
+	defer cancel()
+
+	var tracks []*domain.Track 
+
+	query := `select id, arrival, departure, long_flight, created_at, updated_at from tracks where deleted_at is null`
+	
+	rows, err := repository.DB.QueryContext(ctx, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+
+		var track domain.Track 
+
+		err := rows.Scan(
+			&track.Id, 
+			&track.Arrival,
+			&track.Departure, 
+			&track.LongFlight, 
+			&track.CreatedAt,
+			&track.UpdatedAt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		tracks = append(tracks, &track)
+
+	}
+
+	return tracks, nil
+	
+}

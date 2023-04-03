@@ -193,11 +193,69 @@ func(useCase *ticketUseCaseImpl) GetById(id string)(*domain.TicketRes, error){
 }
 
 func(useCase *ticketUseCaseImpl) List()([]*domain.TicketRes, error) {
+
+	var ticketRes []*domain.TicketRes
+
 	tickets, err := useCase.TicketRepositoryPostgres.List()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return tickets, nil
+	airplanes, err := useCase.AirplaneRepositoryPostgres.List()
+
+	if err != nil {
+		return nil, err
+	}
+
+	tracks, err := useCase.TrackRepositoryPostgres.List()
+
+	if err != nil {
+		return nil, err
+	}
+
+
+	for _, v := range tickets {
+
+		var longFlight int
+		track := &domain.TrackRes{}
+		airplane := &domain.AirplaneRes{}
+
+		for _, t := range tracks {
+			if t.Id == v.TrackId {
+				track.Id = t.Id.String()
+				track.Arrival = t.Arrival
+				track.Departure = t.Departure
+				track.LongFlight = t.LongFlight
+				longFlight = t.LongFlight
+			}
+		}
+
+		for _, a := range airplanes {
+			if a.Id == v.AirplaneId {
+				airplane.Id = a.Id.String()
+				airplane.FlightCode = a.FlightCode
+				airplane.Seats = a.Seats
+			}
+		}
+
+
+		durasi := time.Duration(longFlight) * time.Minute
+		arrivalDatetime := v.Datetime.Add(durasi) 
+
+		result := &domain.TicketRes{
+			Id: v.Id.String(),
+			Track: track,
+			Airplane: airplane,
+			ArrivalDatetime: arrivalDatetime,
+			DepartureDatetime: v.Datetime,
+			Price: v.Price,
+			CreatedAt: v.CreatedAt,
+			UpdatedAt: v.UpdatedAt,
+		}
+
+		ticketRes = append(ticketRes, result)
+	}
+
+	return ticketRes, nil
 }

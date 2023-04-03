@@ -204,18 +204,13 @@ func (repository *ticketRepositoryPostgres) GetById(idTicket string)(*domain.Tic
 	return ticket, track, airplane, nil
 }
 
-func (repository *ticketRepositoryPostgres) List()([]*domain.TicketRes, error) {
+func (repository *ticketRepositoryPostgres) List()([]*domain.Ticket, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 
-	var result []*domain.TicketRes 
+	var result []*domain.Ticket
 
-	query := `select t.id, t.datetime, t.price, tr.id, tr.arrival, tr.departure, tr.long_flight, a.id, a.flight_code, a.seats, t.created_at, t.updated_at 
-			from tickets t
-			inner join airplanes a on t.airplane_id = a.id 
-			inner join tracks tr on t.track_id = tr.id 
-			where t.deleted_at is null order by t.created_at desc`
-
+	query := `select id, track_id, airplane_id ,datetime, price, created_at, updated_at from tickets where deleted_at is null order by created_at desc`
 	
 	rows, err := repository.DB.QueryContext(ctx, query)
 
@@ -227,21 +222,14 @@ func (repository *ticketRepositoryPostgres) List()([]*domain.TicketRes, error) {
 
 	for rows.Next() {
 
-		var track domain.Track
-		var airplane domain.Airplane 
 		var ticket domain.Ticket
 
 		err := rows.Scan(
 			&ticket.Id, 
+			&ticket.TrackId, 
+			&ticket.AirplaneId, 
 			&ticket.Datetime, 
 			&ticket.Price, 
-			&track.Id, 
-			&track.Arrival, 
-			&track.Departure,
-			&track.LongFlight,
-			&airplane.Id, 
-			&airplane.FlightCode, 
-			&airplane.Seats, 
 			&ticket.CreatedAt,
 			&ticket.UpdatedAt,
 		)
@@ -250,34 +238,8 @@ func (repository *ticketRepositoryPostgres) List()([]*domain.TicketRes, error) {
 			return nil, err
 		}
 
-		durasi := time.Duration(track.LongFlight) * time.Minute
-		arrivalDatetime := ticket.Datetime.Add(durasi) 
 
-		trackRes := &domain.TrackRes{
-			Id: track.Id.String(),
-			Arrival: track.Arrival,
-			Departure: track.Departure,
-			LongFlight: track.LongFlight,
-		}
-
-		airplaneRes := &domain.AirplaneRes{
-			Id: airplane.Id.String(),
-			FlightCode: airplane.FlightCode,
-			Seats: airplane.Seats,
-		}
-
-		ticketRes := &domain.TicketRes{
-			Id: 				ticket.Id.String(),
-			Track: 				trackRes,
-			Airplane: 			airplaneRes,
-			ArrivalDatetime: 	arrivalDatetime,
-			DepartureDatetime: 	ticket.Datetime,
-			Price: 				ticket.Price,
-			CreatedAt: 			ticket.CreatedAt,
-			UpdatedAt: 			ticket.UpdatedAt,
-		}
-
-		result = append(result, ticketRes)
+		result = append(result, &ticket)
 
 	}
 

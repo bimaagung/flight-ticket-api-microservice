@@ -29,4 +29,5 @@ type AirplaneRepositoryPostgres interface {
 	VerifyAirplaneAvailable(idTrack string) error
 	Insert(airplane *Airplane) (string, error)
 	CheckAirplaneExist(flightCode string) error
+	List()([]*Airplane, error)
 }

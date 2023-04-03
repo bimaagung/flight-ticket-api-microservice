@@ -43,7 +43,7 @@ type TicketRepositoryPostgres interface {
 	VerifyTicketAvailable(idTicket string) error
 	Update(idTicket string, ticket *Ticket) error
 	GetById(idTicket string)(*Ticket, *Track, *Airplane, error)
-	List()([]*TicketRes, error)
+	List()([]*Ticket, error)
 }
 
 type TicketUseCase interface {
