@@ -20,6 +20,7 @@ func (handler *TicketHandler) Route(app *gin.Engine) {
 	route.DELETE("/ticket/:id", handler.Delete)
 	route.PUT("/ticket/:id", handler.Update)
 	route.GET("/ticket/find/:id", handler.GetById)
+	route.GET("/ticket", handler.GetList)
 }
 
 func (handler *TicketHandler) Add(c *gin.Context) {
@@ -101,6 +102,24 @@ func (handler *TicketHandler) GetById(c *gin.Context) {
 	id := c.Param("id")
 
 	result, err := handler.TicketUseCase.GetById(id)
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"status": "fail",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"status": "ok",
+		"message": "success",
+		"data": result,
+	})	
+}
+
+func (handler *TicketHandler) GetList(c *gin.Context) {
+	result, err := handler.TicketUseCase.List()
 
 	if err != nil {
 		c.JSON(400, gin.H{

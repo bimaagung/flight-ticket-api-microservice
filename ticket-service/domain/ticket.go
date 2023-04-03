@@ -43,6 +43,7 @@ type TicketRepositoryPostgres interface {
 	VerifyTicketAvailable(idTicket string) error
 	Update(idTicket string, ticket *Ticket) error
 	GetById(idTicket string)(*Ticket, *Track, *Airplane, error)
+	List()([]*TicketRes, error)
 }
 
 type TicketUseCase interface {
@@ -50,4 +51,5 @@ type TicketUseCase interface {
 	Delete(id string) error
 	Update(idTicket string, ticket *TicketReq) error
 	GetById(idTicket string)(*TicketRes, error)
+	List()([]*TicketRes, error)
 }

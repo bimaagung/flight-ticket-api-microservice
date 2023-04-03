@@ -165,14 +165,14 @@ func(useCase *ticketUseCaseImpl) GetById(id string)(*domain.TicketRes, error){
 	durasi := time.Duration(track.LongFlight) * time.Minute
 	arrivalDatetime := ticket.Datetime.Add(durasi) 
 
-	trackRest := &domain.TrackRes{
+	trackRes := &domain.TrackRes{
 		Id: track.Id.String(),
 		Arrival: track.Arrival,
 		Departure: track.Departure,
 		LongFlight: track.LongFlight,
 	}
 
-	airplaneRest := &domain.AirplaneRes{
+	airplaneRes := &domain.AirplaneRes{
 		Id: airplane.Id.String(),
 		FlightCode: airplane.FlightCode,
 		Seats: airplane.Seats,
@@ -180,8 +180,8 @@ func(useCase *ticketUseCaseImpl) GetById(id string)(*domain.TicketRes, error){
 
 	result := &domain.TicketRes{
 		Id: 				ticket.Id.String(),
-		Track: 				trackRest,
-		Airplane: 			airplaneRest,
+		Track: 				trackRes,
+		Airplane: 			airplaneRes,
 		ArrivalDatetime: 	arrivalDatetime,
 		DepartureDatetime: 	ticket.Datetime,
 		Price: 				ticket.Price,
@@ -190,4 +190,14 @@ func(useCase *ticketUseCaseImpl) GetById(id string)(*domain.TicketRes, error){
 	} 
 
 	return result, nil
+}
+
+func(useCase *ticketUseCaseImpl) List()([]*domain.TicketRes, error) {
+	tickets, err := useCase.TicketRepositoryPostgres.List()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return tickets, nil
 }
