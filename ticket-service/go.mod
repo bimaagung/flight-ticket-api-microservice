@@ -4,7 +4,11 @@ go 1.19
 
 require github.com/jackc/pgconn v1.14.0
 
-require github.com/jackc/pgtype v1.14.0 // indirect
+require (
+	github.com/elastic/elastic-transport-go/v8 v8.2.0 // indirect
+	github.com/elastic/go-elasticsearch/v8 v8.7.0 // indirect
+	github.com/jackc/pgtype v1.14.0 // indirect
+)
 
 require (
 	github.com/bytedance/sonic v1.8.5 // indirect

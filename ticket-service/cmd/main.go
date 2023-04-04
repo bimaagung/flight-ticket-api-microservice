@@ -8,6 +8,7 @@ import (
 	httphandler "ticket-service/internal/handler/http/v1"
 	postgresrepository "ticket-service/internal/repository/postgres_repository"
 	"ticket-service/internal/usecase"
+	"ticket-service/pkg/es"
 	"ticket-service/pkg/postgresdb"
 	"ticket-service/pkg/rabbitmq"
 
@@ -43,6 +44,9 @@ func main() {
 	rabbitmqPass := viper.GetString(`RABBITMQ_PASSWORD`)
 	rabbitmqHost := viper.GetString(`RABBITMQ_HOST`)
 
+	esHost := viper.GetString(`ELASTICSEARCH_HOST`)
+	esPort := viper.GetString(`ELASTICSEARCH_PORT`)
+
 	log.Println("Starting ticket service")
 
 
@@ -58,6 +62,17 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	// connect to elasticsearch
+	esClient := es.NewESClient(esHost, esPort)
+
+	res, err := esClient.Info()
+	if err != nil {
+		log.Fatalf("Error getting response: %s", err)
+	}
+	defer res.Body.Close()
+
+	log.Println(res)
 
 	// Track
 	trackRepositoryPostgres := postgresrepository.NewTrackRepositoryPostgres(conn)

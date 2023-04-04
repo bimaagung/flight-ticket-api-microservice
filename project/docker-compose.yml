@@ -50,22 +50,6 @@ services:
     env_file:
       - ./../ticket-service/.env
   
-  ticket-consumer:
-    build:
-      context: ./../ticket-service
-      dockerfile: ./../ticket-service/ticket-consumer-service.dockerfile
-    restart: always
-    ports:
-      - "3003:3002"
-    deploy:
-      mode: replicated
-      replicas: 1
-    depends_on:
-      postgres-ticket:
-        condition: service_healthy
-    env_file:
-      - ./../ticket-service/.env
-  
   postgres-track:
     image: 'postgres:14.2'
     restart: always
@@ -168,3 +152,29 @@ services:
           condition: service_healthy
       links: 
           - mysql
+
+  elasticsearch-ticket:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    environment:
+    - bootstrap.memory_lock=true
+    - cluster.name=ticket-cluster
+    - node.name=node-1
+    - cluster.routing.allocation.disk.threshold_enabled=false
+    - discovery.type=single-node
+    - xpack.security.enabled=false
+    - xpack.security.http.ssl.enabled=false
+    - ES_JAVA_OPTS=-XX:UseAVX=2 -Xms1g -Xmx1g
+    ulimits:
+      memlock:
+        hard: -1
+        soft: -1
+    volumes:
+    - ./db-data/esdata-ticket:/usr/share/elasticsearch/data
+    ports:
+    - 9200:9200
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+
+  
