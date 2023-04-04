@@ -10,3 +10,4 @@ project/db-data/mysql
 project/db-data/postgres-ticket
 project/db-data/postgres-track
 project/db-data/rabbitmq
+project/db-data/esdata-ticket
