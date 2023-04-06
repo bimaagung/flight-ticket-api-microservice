@@ -54,7 +54,7 @@ func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 		Price: payload.Price,
 	}
 
-	err = useCase.TicketRepositoryPostgres.CheckTicketExist(payload.TrackId, payload.AirplaneId, ticket.Datetime)
+	err = useCase.TicketRepositoryPostgres.CheckTicketExist(parseTrackId, parseAirplalneId, parseTime)
 
 	if err != nil {
 		return "", err

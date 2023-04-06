@@ -3,6 +3,7 @@ package es
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
@@ -38,4 +39,34 @@ func NewESClient(esHost, esPort string) *elasticsearch.Client {
 		time.Sleep(2 * time.Second)
 		continue
 	}
+}
+
+func AddIndex(es *elasticsearch.Client) error {
+    index := "ticket"
+    mapping := `
+    {
+      "settings": {
+        "number_of_shards": 1
+      },
+      "mappings": {
+        "properties": {
+          "field1": {
+            "type": "text"
+          }
+        }
+      }
+    }`
+
+	res, err := es.Indices.Create(
+		index,
+		es.Indices.Create.WithBody(strings.NewReader(mapping)),
+	)
+
+	if err != nil {
+		return err
+	}
+
+	log.Println(res)
+
+	return nil
 }

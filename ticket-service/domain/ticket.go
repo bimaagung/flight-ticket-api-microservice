@@ -38,7 +38,7 @@ type TicketRes struct {
 
 type TicketRepositoryPostgres interface {
 	Insert(ticket *Ticket)(string, error)
-	CheckTicketExist(trackId string, airplaneId string, datetime time.Time) error
+	CheckTicketExist(trackId uuid.UUID, airplaneId uuid.UUID, datetime time.Time) error
 	Delete(id string) error
 	VerifyTicketAvailable(idTicket string) error
 	Update(idTicket string, ticket *Ticket) error

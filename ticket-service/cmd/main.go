@@ -68,11 +68,17 @@ func main() {
 
 	res, err := esClient.Info()
 	if err != nil {
-		log.Fatalf("Error getting response: %s", err)
+		log.Printf("Error getting response: %s", err)
 	}
 	defer res.Body.Close()
 
 	log.Println(res)
+
+	err = es.AddIndex(esClient)
+
+	if err != nil {
+		log.Println(err)
+	}
 
 	// Track
 	trackRepositoryPostgres := postgresrepository.NewTrackRepositoryPostgres(conn)

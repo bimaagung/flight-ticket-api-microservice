@@ -45,11 +45,11 @@ func(repository *ticketRepositoryPostgres) Insert(ticket *domain.Ticket)(string,
 	return id.String(), nil
 }
 
-func (repository *ticketRepositoryPostgres) CheckTicketExist(trackId string, airplaneId string, datetime time.Time) error {
+func (repository *ticketRepositoryPostgres) CheckTicketExist(trackId uuid.UUID, airplaneId uuid.UUID, datetime time.Time) error {
 	ctx, cancel := context.WithTimeout(context.Background(), repository.DBTimeout)
 	defer cancel()
 
-	var ticket domain.Ticket
+	var id uuid.UUID
 	query := `select id from tickets where track_id = $1 and airplane_id = $2 and datetime = $3 and deleted_at is null`
 
 	row := repository.DB.QueryRowContext(ctx, query, trackId, airplaneId, datetime)
@@ -59,7 +59,7 @@ func (repository *ticketRepositoryPostgres) CheckTicketExist(trackId string, air
 	}
 
 	err := row.Scan(
-		&ticket.Id,
+		&id,
 	)
 
 	if err == sql.ErrNoRows{
