@@ -66,18 +66,12 @@ func main() {
 	// connect to elasticsearch
 	esClient := es.NewESClient(esHost, esPort)
 
-	res, err := esClient.Info()
-	if err != nil {
-		log.Printf("Error getting response: %s", err)
-	}
-	defer res.Body.Close()
-
-	log.Println(res)
-
-	err = es.AddIndex(esClient)
+	msg, err := es.AddIndex(esClient, "ticket")
 
 	if err != nil {
 		log.Println(err)
+	}else{
+		log.Println(msg)
 	}
 
 	// Track

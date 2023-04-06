@@ -41,32 +41,32 @@ func NewESClient(esHost, esPort string) *elasticsearch.Client {
 	}
 }
 
-func AddIndex(es *elasticsearch.Client) error {
-    index := "ticket"
+func AddIndex(es *elasticsearch.Client, index string) (string, error) {
     mapping := `
-    {
-      "settings": {
-        "number_of_shards": 1
-      },
-      "mappings": {
-        "properties": {
-          "field1": {
-            "type": "text"
-          }
-        }
-      }
-    }`
+	{
+		"settings": {
+			"index": {
+				"number_of_shards": 5,
+				"number_of_replicas": 2 
+			}
+		}
+	}`
 
 	res, err := es.Indices.Create(
 		index,
 		es.Indices.Create.WithBody(strings.NewReader(mapping)),
 	)
 
-	if err != nil {
-		return err
+	stmt := fmt.Sprintf("index %s is already", index)
+
+	if res.StatusCode == 400 {
+		return stmt, nil
 	}
 
-	log.Println(res)
+	if err != nil {
+		return "", err
+	}
 
-	return nil
+	stmt = fmt.Sprintf("success created index %s ", index)
+	return stmt, nil
 }
