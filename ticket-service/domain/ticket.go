@@ -18,7 +18,7 @@ type Ticket struct {
 }
 
 type TicketES struct {
-	TrackId       	uuid.UUID    	`json:"track_id,omitempty"`
+	TrackId      	uuid.UUID    	`json:"track_id,omitempty"`
 	AirplaneId     	uuid.UUID    	`json:"airplane_id,omitempty"`
 	Datetime    	time.Time 		`json:"date,omitempty"`
 	Price    		int 			`json:"price,omitempty"`
@@ -55,8 +55,8 @@ type TicketRepositoryPostgres interface {
 	List()([]*Ticket, error)
 }
 type TicketRepositoryElasticsearch interface {
-	Insert(idTicket string, ticket *TicketES) error
-	Update(idTicket string, ticket *TicketES) error
+	Insert(idTicket string, ticket *TicketRes) error
+	Update(idTicket string, ticket *TicketRes) error
 	Delete(idTicket string) error
 }
 

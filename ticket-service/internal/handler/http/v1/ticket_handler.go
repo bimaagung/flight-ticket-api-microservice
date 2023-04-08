@@ -135,3 +135,23 @@ func (handler *TicketHandler) GetList(c *gin.Context) {
 		"data": result,
 	})	
 }
+
+func (handler *TicketHandler) Search(c *gin.Context) {
+	id := c.Query("arrival")
+
+	result, err := handler.TicketUseCase.GetById(id)
+
+	if err != nil {
+		c.JSON(400, gin.H{
+			"status": "fail",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"status": "ok",
+		"message": "success",
+		"data": result,
+	})	
+}

@@ -81,14 +81,13 @@ func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 		return "", err
 	}
 
-	err = useCase.ticketRepositoryES.Insert(id, &domain.TicketES{
-		TrackId: parseTrackId,
-		AirplaneId: parseAirplalneId,
-		Datetime: parseTime,
-		Price: payload.Price,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	})
+	res, err := useCase.GetById(id)
+
+	if err != nil {
+		return "", err
+	}
+
+	err = useCase.ticketRepositoryES.Insert(id, res)
 
 	if err != nil {
 		return "", err
@@ -174,13 +173,13 @@ func(useCase *ticketUseCaseImpl) Update(idTicket string, payload *domain.TicketR
 		return err
 	}
 
-	err = useCase.ticketRepositoryES.Update(idTicket, &domain.TicketES{
-		TrackId: parseTrackId,
-		AirplaneId: parseAirplalneId,
-		Datetime: parseTime,
-		Price: payload.Price,
-		UpdatedAt: time.Now(),
-	})
+	res, err := useCase.GetById(idTicket)
+
+	if err != nil {
+		return err
+	}
+
+	err = useCase.ticketRepositoryES.Update(idTicket, res)
 
 	if err != nil {
 		return err

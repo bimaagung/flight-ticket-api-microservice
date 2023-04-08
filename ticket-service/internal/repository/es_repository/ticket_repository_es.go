@@ -26,7 +26,7 @@ type ticketRepositoryES struct {
 	DBTimeout time.Duration
 }
 
-func (repository *ticketRepositoryES) Insert(idTicket string, ticket *domain.TicketES) error {
+func (repository *ticketRepositoryES) Insert(idTicket string, ticket *domain.TicketRes) error {
 	ctx, cancel := context.WithTimeout(context.Background(),repository.DBTimeout)
 	defer cancel()
 
@@ -60,7 +60,7 @@ func (repository *ticketRepositoryES) Insert(idTicket string, ticket *domain.Tic
 	return nil
 }
 
-func (repository *ticketRepositoryES) Update(idTicket string, ticket *domain.TicketES) error {
+func (repository *ticketRepositoryES) Update(idTicket string, ticket *domain.TicketRes) error {
 	ctx, cancel := context.WithTimeout(context.Background(),repository.DBTimeout)
 	defer cancel()
 
