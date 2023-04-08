@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
 	"ticket-service/domain"
 	"time"
 
@@ -48,6 +51,12 @@ func (repository *ticketRepositoryES) Insert(idTicket string, ticket *domain.Tic
 
 	defer res.Body.Close()
 
+	if res.StatusCode == 400 {
+		return errors.New(res.String())
+	}
+
+	log.Printf("status_code: %d, success created ticket in elasticsearch",res.StatusCode)
+
 	return nil
 }
 
@@ -64,7 +73,7 @@ func (repository *ticketRepositoryES) Update(idTicket string, ticket *domain.Tic
 	req := esapi.UpdateRequest{
 		Index: "ticket",
 		DocumentID: idTicket,
-		Body: bytes.NewReader(data),
+		Body: bytes.NewReader([]byte(fmt.Sprintf(`{"doc":%s}`, data))),
 		Refresh: "true",
 	}
 
@@ -75,6 +84,39 @@ func (repository *ticketRepositoryES) Update(idTicket string, ticket *domain.Tic
 	}
 
 	defer res.Body.Close()
+
+	if res.StatusCode == 400 {
+		return errors.New(res.String())
+	}
+
+	log.Printf("status_code: %d, success updated ticket in elasticsearch",res.StatusCode)
+
+	return nil
+}
+
+func (repository *ticketRepositoryES) Delete(idTicket string) error {
+	ctx, cancel := context.WithTimeout(context.Background(),repository.DBTimeout)
+	defer cancel()
+
+	req := esapi.DeleteRequest{
+		Index: "ticket",
+		DocumentID: idTicket,
+		Refresh: "true",
+	}
+
+	res, err := req.Do(ctx, repository.ESClient)
+
+	if err != nil {
+		return err
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode == 400 {
+		return errors.New(res.String())
+	}
+
+	log.Printf("status_code: %d, success deleted ticket in elasticsearch",res.StatusCode)
 
 	return nil
 }

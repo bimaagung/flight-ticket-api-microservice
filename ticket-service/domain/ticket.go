@@ -24,7 +24,6 @@ type TicketES struct {
 	Price    		int 			`json:"price,omitempty"`
 	CreatedAt 		time.Time 		`json:"created_at,omitempty"`
 	UpdatedAt 		time.Time 		`json:"updated_at,omitempty"`
-	DeletedAt 		time.Time 		`json:"deleted_at,omitempty"`
 }
 
 type TicketReq struct {
@@ -58,6 +57,7 @@ type TicketRepositoryPostgres interface {
 type TicketRepositoryElasticsearch interface {
 	Insert(idTicket string, ticket *TicketES) error
 	Update(idTicket string, ticket *TicketES) error
+	Delete(idTicket string) error
 }
 
 type TicketUseCase interface {

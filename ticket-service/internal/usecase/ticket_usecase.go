@@ -86,6 +86,8 @@ func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 		AirplaneId: parseAirplalneId,
 		Datetime: parseTime,
 		Price: payload.Price,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	})
 
 	if err != nil {
@@ -108,6 +110,13 @@ func(useCase *ticketUseCaseImpl) Delete(id string) error {
 	if err != nil {
 		return err
 	}
+
+	err = useCase.ticketRepositoryES.Delete(id)
+
+	if err != nil {
+		return err
+	}
+
 
 	return nil
 }
@@ -160,6 +169,18 @@ func(useCase *ticketUseCaseImpl) Update(idTicket string, payload *domain.TicketR
 	}
 
 	err = useCase.TicketRepositoryPostgres.Update(idTicket, ticket)
+
+	if err != nil {
+		return err
+	}
+
+	err = useCase.ticketRepositoryES.Update(idTicket, &domain.TicketES{
+		TrackId: parseTrackId,
+		AirplaneId: parseAirplalneId,
+		Datetime: parseTime,
+		Price: payload.Price,
+		UpdatedAt: time.Now(),
+	})
 
 	if err != nil {
 		return err
