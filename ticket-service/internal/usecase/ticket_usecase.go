@@ -11,12 +11,14 @@ func NewTicketUseCase(
 		ticketRepositoryPostgres domain.TicketRepositoryPostgres,
 		trackRepositoryPostgres domain.TrackRepositoryPostgres,
 		airplaneRepositoryPostgres domain.AirplaneRepositoryPostgres,
+		ticketRepositoryES domain.TicketRepositoryElasticsearch,
 	) domain.TicketUseCase {
 
 	return &ticketUseCaseImpl{
 		TicketRepositoryPostgres: ticketRepositoryPostgres,
 		TrackRepositoryPostgres: trackRepositoryPostgres,
 		AirplaneRepositoryPostgres: airplaneRepositoryPostgres,
+		ticketRepositoryES: ticketRepositoryES,
 	}
 
 }
@@ -25,6 +27,7 @@ type ticketUseCaseImpl struct {
 	TicketRepositoryPostgres domain.TicketRepositoryPostgres
 	TrackRepositoryPostgres domain.TrackRepositoryPostgres
 	AirplaneRepositoryPostgres domain.AirplaneRepositoryPostgres
+	ticketRepositoryES domain.TicketRepositoryElasticsearch
 }
 
 func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
@@ -73,6 +76,17 @@ func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 	}
 
 	id, err := useCase.TicketRepositoryPostgres.Insert(ticket)
+
+	if err != nil {
+		return "", err
+	}
+
+	err = useCase.ticketRepositoryES.Insert(id, &domain.TicketES{
+		TrackId: parseTrackId,
+		AirplaneId: parseAirplalneId,
+		Datetime: parseTime,
+		Price: payload.Price,
+	})
 
 	if err != nil {
 		return "", err

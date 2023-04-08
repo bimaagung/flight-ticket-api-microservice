@@ -6,6 +6,7 @@ import (
 	airplaneevent "ticket-service/internal/handler/event/airplane"
 	trackevent "ticket-service/internal/handler/event/track"
 	httphandler "ticket-service/internal/handler/http/v1"
+	esrepository "ticket-service/internal/repository/es_repository"
 	postgresrepository "ticket-service/internal/repository/postgres_repository"
 	"ticket-service/internal/usecase"
 	"ticket-service/pkg/es"
@@ -83,8 +84,9 @@ func main() {
 	airplaneUseCase := usecase.NewAirplaneUseCase(airplaneRepositoryPostgres)
 
 	// Ticket
+	ticketRepositoryES := esrepository.NewTicketESRepository(esClient)
 	ticketRepositoryPostgres := postgresrepository.NewTicketPostgresRepository(conn)
-	ticketUseCase := usecase.NewTicketUseCase(ticketRepositoryPostgres, trackRepositoryPostgres, airplaneRepositoryPostgres)
+	ticketUseCase := usecase.NewTicketUseCase(ticketRepositoryPostgres, trackRepositoryPostgres, airplaneRepositoryPostgres, ticketRepositoryES)
 	ticketHttpHandler := httphandler.NewTicketHandler(ticketUseCase)
 	
 	ticketHttpHandler.Route(r)

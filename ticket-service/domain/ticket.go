@@ -17,6 +17,16 @@ type Ticket struct {
 	DeletedAt 		time.Time 		`json:"deleted_at,omitempty"`
 }
 
+type TicketES struct {
+	TrackId       	uuid.UUID    	`json:"track_id,omitempty"`
+	AirplaneId     	uuid.UUID    	`json:"airplane_id,omitempty"`
+	Datetime    	time.Time 		`json:"date,omitempty"`
+	Price    		int 			`json:"price,omitempty"`
+	CreatedAt 		time.Time 		`json:"created_at,omitempty"`
+	UpdatedAt 		time.Time 		`json:"updated_at,omitempty"`
+	DeletedAt 		time.Time 		`json:"deleted_at,omitempty"`
+}
+
 type TicketReq struct {
 	TrackId       	string    	`json:"track_id,omitempty"`
 	AirplaneId     	string    	`json:"airplane_id,omitempty"`
@@ -44,6 +54,10 @@ type TicketRepositoryPostgres interface {
 	Update(idTicket string, ticket *Ticket) error
 	GetById(idTicket string)(*Ticket, *Track, *Airplane, error)
 	List()([]*Ticket, error)
+}
+type TicketRepositoryElasticsearch interface {
+	Insert(idTicket string, ticket *TicketES) error
+	Update(idTicket string, ticket *TicketES) error
 }
 
 type TicketUseCase interface {
