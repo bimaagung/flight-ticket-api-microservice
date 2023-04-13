@@ -293,3 +293,14 @@ func(useCase *ticketUseCaseImpl) List()([]*domain.TicketRes, error) {
 
 	return ticketRes, nil
 }
+
+func(useCase *ticketUseCaseImpl) Search(payloadSearch string) ([]*domain.TicketRes, error){
+
+	tickets, err := useCase.ticketRepositoryES.Search(payloadSearch)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return tickets, nil
+}

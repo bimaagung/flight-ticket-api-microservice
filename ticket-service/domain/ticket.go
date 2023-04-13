@@ -58,6 +58,7 @@ type TicketRepositoryElasticsearch interface {
 	Insert(idTicket string, ticket *TicketRes) error
 	Update(idTicket string, ticket *TicketRes) error
 	Delete(idTicket string) error
+	Search(payloadSearch string) ([]*TicketRes, error)
 }
 
 type TicketUseCase interface {
@@ -66,4 +67,5 @@ type TicketUseCase interface {
 	Update(idTicket string, ticket *TicketReq) error
 	GetById(idTicket string)(*TicketRes, error)
 	List()([]*TicketRes, error)
+	Search(payloadSearch string)  ([]*TicketRes, error)
 }

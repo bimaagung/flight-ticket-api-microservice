@@ -21,6 +21,7 @@ func (handler *TicketHandler) Route(app *gin.Engine) {
 	route.PUT("/ticket/:id", handler.Update)
 	route.GET("/ticket/find/:id", handler.GetById)
 	route.GET("/ticket", handler.GetList)
+	route.GET("/ticket/search", handler.Search)
 }
 
 func (handler *TicketHandler) Add(c *gin.Context) {
@@ -137,9 +138,9 @@ func (handler *TicketHandler) GetList(c *gin.Context) {
 }
 
 func (handler *TicketHandler) Search(c *gin.Context) {
-	id := c.Query("arrival")
+	payloadSearch 	:= c.Query("search")
 
-	result, err := handler.TicketUseCase.GetById(id)
+	result, err := handler.TicketUseCase.Search(payloadSearch)
 
 	if err != nil {
 		c.JSON(400, gin.H{
