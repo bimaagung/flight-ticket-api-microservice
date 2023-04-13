@@ -148,10 +148,14 @@ func (repository *ticketRepositoryES) Search(payloadSearch string) ([]*domain.Ti
 
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
-			"combined_fields": map[string]interface{}{
+			"multi_match": map[string]interface{}{
 				"query": payloadSearch,
+				"analyzer": "my_analyzer",
+				"fuzziness": "AUTO",
 				"fields": []string{"track.arrival", "track.departure"},
-				"operator": "and",
+				"operator": "or",
+				"type": "most_fields",
+      			"tie_breaker": 0.3,
 			},
 		},
 	}
@@ -189,7 +193,6 @@ func (repository *ticketRepositoryES) Search(payloadSearch string) ([]*domain.Ti
 
 	var ticketsRes []*domain.TicketRes
 
-	fmt.Printf("Total hits: %d\n", response.Hits.Total.Value)
     for _, hit := range response.Hits.Hits {
 		trackRes := domain.TrackRes{
 			Id: hit.Source.Track.Id.String(),
