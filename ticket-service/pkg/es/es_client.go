@@ -42,15 +42,42 @@ func NewESClient(esHost, esPort string) *elasticsearch.Client {
 }
 
 func AddIndex(es *elasticsearch.Client, index string) (string, error) {
-    mapping := `
-	{
+    mapping :=
+	`{
 		"settings": {
 			"index": {
 				"number_of_shards": 5,
 				"number_of_replicas": 2 
+			},
+			"analysis": {
+				"analyzer": {
+					"my_analyzer": {
+						"tokenizer": "my_tokenizer"
+					}
+				},
+				"tokenizer": {
+					"my_tokenizer": {
+						"type": "ngram",
+						"min_gram": 3,
+						"max_gram": 3
+					}
+				}
+			}
+		},
+		"mappings": {
+			"properties": {
+				"track.arrival": {
+					"type": "text",
+					"analyzer": "my_analyzer"
+				},
+				"track.departure": {
+					"type": "text",
+					"analyzer": "my_analyzer"
+				}
 			}
 		}
 	}`
+
 
 	res, err := es.Indices.Create(
 		index,
