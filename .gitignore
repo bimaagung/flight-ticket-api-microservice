@@ -11,3 +11,5 @@ project/db-data/postgres-ticket
 project/db-data/postgres-track
 project/db-data/rabbitmq
 project/db-data/esdata-ticket
+authentication-service/node_modules
+authentication-service/dist
