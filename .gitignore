@@ -13,3 +13,4 @@ project/db-data/rabbitmq
 project/db-data/esdata-ticket
 authentication-service/node_modules
 authentication-service/dist
+authentication-service/.env
