@@ -10,3 +10,11 @@ Mini project of making an airplane ticket sales application using the microservi
   <img src="https://raw.githubusercontent.com/bimaagung/flight-ticket-api-microservice/master/erdflightticket.png" width="600">
 
 </div>
+
+## 🔍 Event-Driven Architecture
+
+<div align="center">
+  
+  <img src="https://raw.githubusercontent.com/bimaagung/flight-ticket-api-microservice/master/microservice.png" width="600">
+
+</div>
