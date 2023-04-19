@@ -18,3 +18,15 @@ Mini project of making an airplane ticket sales application using the microservi
   <img src="https://raw.githubusercontent.com/bimaagung/flight-ticket-api-microservice/master/microservice.png" width="600">
 
 </div>
+
+## 💻 Technology Stack
+
+- GO with framework Gin
+- Typescript with framework Nest.JS
+- PostgreSQL
+- MySQL
+- Elasticsearch
+- TypeORM
+- RabbitMQ
+- Viper
+- Docker
