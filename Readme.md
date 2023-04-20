@@ -18,7 +18,7 @@ Mini project of making an airplane ticket sales application using the microservi
   <img src="https://raw.githubusercontent.com/bimaagung/flight-ticket-api-microservice/master/microservice.png" width="600">
 
 </div>
-
+<br>
 This project is designed using a microservices architecture, which is an approach to software development where a single application is built as a collection of smaller services, each running independently and communicating with each other through APIs or messaging systems. This architecture allows for loose coupling between the services, making them more flexible, scalable, and easier to maintain.
 
 The project consists of six services, each serving a specific function:
