@@ -180,5 +180,21 @@ services:
       interval: 20s
       retries: 10
       test: curl -s http://localhost:9200/_cluster/health | grep -vq '"status":"red"'
+  
+  redis-authentication:
+    image: redis
+    command: /bin/sh -c "redis-server --requirepass secret"
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    volumes:
+    - ./db-data/redis-authentication:/usr/share/redis-authentication/data
+    ports:
+    - 6379:6379
+    healthcheck:
+      interval: 20s
+      retries: 10
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
 
   
