@@ -1,10 +1,22 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  CACHE_MANAGER,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Post,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { Cache } from 'cache-manager';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -13,10 +25,11 @@ export class AuthController {
       signInDto.email,
       signInDto.password,
     );
+    await this.cacheManager.set(result.id, result.access_token);
     return {
       status: 'ok',
       message: 'success',
-      data: result,
+      data: result.access_token,
     };
   }
 
