@@ -8,13 +8,26 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInDto: Record<string, any>) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+  async signIn(@Body() signInDto: Record<string, any>) {
+    const result = await this.authService.signIn(
+      signInDto.email,
+      signInDto.password,
+    );
+    return {
+      status: 'ok',
+      message: 'success',
+      data: result,
+    };
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('register')
-  signUp(@Body() createUserDto: CreateUserDto) {
-    return this.authService.signUp(createUserDto);
+  async signUp(@Body() createUserDto: CreateUserDto) {
+    const result = await this.authService.signUp(createUserDto);
+    return {
+      status: 'ok',
+      message: 'success',
+      data: result,
+    };
   }
 }

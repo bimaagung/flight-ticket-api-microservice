@@ -36,6 +36,15 @@ export class AuthService {
       throw new HttpException('user not available', HttpStatus.BAD_REQUEST);
     }
 
-    return this.usersService.create(createUserDto);
+    const users = await this.usersService.create(createUserDto);
+
+    const result = {
+      id: users.id,
+      first_name: users.first_name,
+      last_name: users.last_name,
+      email: users.email,
+    };
+
+    return result;
   }
 }
