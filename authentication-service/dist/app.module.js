@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const app_controller_1 = require("./app.controller");
+const redisStore = require("cache-manager-redis-store");
 const app_service_1 = require("./app.service");
 const typeorm_1 = require("@nestjs/typeorm");
 const config_1 = require("@nestjs/config");
@@ -21,6 +22,11 @@ AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
+            }),
+            common_1.CacheModule.register({
+                store: redisStore,
+                host: 'localhost',
+                port: 6379,
             }),
             typeorm_1.TypeOrmModule.forRoot({
                 type: 'mysql',
