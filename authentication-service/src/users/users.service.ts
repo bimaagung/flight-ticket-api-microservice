@@ -20,8 +20,8 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-  findOne(id: string) {
-    return this.usersRepository.findOneBy({ id });
+  findOne(email: string) {
+    return this.usersRepository.findOneBy({ email });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
