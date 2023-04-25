@@ -1,6 +1,6 @@
 import { Module, CacheModule } from '@nestjs/common';
 import { AppController } from './app.controller';
-import * as redisStore from 'cache-manager-redis-store';
+import { redisStore } from 'cache-manager-redis-yet';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
@@ -12,10 +12,13 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    CacheModule.register({
-      store: redisStore,
-      host: 'localhost', //default host
-      port: 6379, //default port
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => ({
+        store: await redisStore({
+          url: 'redis://@localhost:6379',
+        }),
+      }),
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
