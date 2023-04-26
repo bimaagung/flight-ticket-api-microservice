@@ -183,7 +183,7 @@ services:
   
   redis-authentication:
     image: redis
-    command: /bin/sh -c "redis-server --requirepass secret"
+    #command: /bin/sh -c "redis-server --requirepass secret"
     restart: always
     deploy:
       mode: replicated
