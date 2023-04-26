@@ -1,6 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from 'src/security/jwt-token-manager/constants';
 
 @Injectable()
 export class JwtTokenManagerService {
@@ -8,13 +7,13 @@ export class JwtTokenManagerService {
 
   async createAccessToken(payload: any): Promise<any> {
     return this.jwtService.signAsync(payload, {
-      secret: jwtConstants.accessTokenKey,
+      secret: process.env.ACCESS_TOKEN_KEY,
     });
   }
 
   async refreshAccessToken(payload: any): Promise<any> {
     return this.jwtService.signAsync(payload, {
-      secret: jwtConstants.refreshTokenKey,
+      secret: process.env.REFRESH_TOKEN_KEY,
     });
   }
 
@@ -25,7 +24,7 @@ export class JwtTokenManagerService {
   async verifyRefreshToken(refreshToken: string) {
     try {
       await this.jwtService.verifyAsync(refreshToken, {
-        secret: jwtConstants.refreshTokenKey,
+        secret: process.env.REFRESH_TOKEN_KEY,
       });
     } catch (error) {
       console.log(error);

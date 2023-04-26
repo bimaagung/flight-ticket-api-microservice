@@ -24,6 +24,7 @@ AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
+                cache: true,
             }),
             common_1.CacheModule.registerAsync({
                 isGlobal: true,

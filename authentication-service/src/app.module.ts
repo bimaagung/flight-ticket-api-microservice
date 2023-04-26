@@ -13,6 +13,7 @@ import { JwtTokenManagerModule } from './security/jwt-token-manager/jwt-token-ma
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      cache: true,
     }),
     CacheModule.registerAsync({
       isGlobal: true,

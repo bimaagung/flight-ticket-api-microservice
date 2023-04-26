@@ -67,10 +67,7 @@ export class AuthService {
   async checkAvailabilityToken(token: string): Promise<any> {
     const result = await this.cacheManager.get(token);
     if (!result) {
-      throw new HttpException(
-        'refresh token not found',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('refresh token not found', HttpStatus.NOT_FOUND);
     }
   }
 
@@ -78,7 +75,7 @@ export class AuthService {
     const verifyUser = await this.usersService.FindByEmail(createUserDto.email);
 
     if (verifyUser) {
-      throw new HttpException('user not available', HttpStatus.BAD_REQUEST);
+      throw new HttpException('user not available', HttpStatus.NOT_FOUND);
     }
 
     const users = await this.usersService.add(createUserDto);
