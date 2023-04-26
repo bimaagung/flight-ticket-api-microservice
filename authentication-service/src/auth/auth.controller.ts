@@ -1,35 +1,46 @@
 import {
   Body,
-  CACHE_MANAGER,
   Controller,
   HttpCode,
   HttpStatus,
-  Inject,
   Post,
+  Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { Cache } from 'cache-manager';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @HttpCode(HttpStatus.OK)
-  @Post('login')
-  async signIn(@Body() signInDto: Record<string, any>) {
-    const result = await this.authService.signIn(
+  @Post()
+  async postAuthentication(@Body() signInDto: Record<string, any>) {
+    const result = await this.authService.loginUser(
       signInDto.email,
       signInDto.password,
     );
-    await this.cacheManager.set(result.id, result.access_token);
+
     return {
       status: 'ok',
       message: 'success',
       data: result.access_token,
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Put()
+  async putAuthentication(@Body() payload: Record<string, any>) {
+    const accessToken = await this.authService.refreshAuthentication(
+      payload.refresh_token,
+    );
+
+    return {
+      status: 'ok',
+      message: 'success',
+      data: {
+        accessToken,
+      },
     };
   }
 
