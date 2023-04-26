@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Post,
@@ -41,6 +42,17 @@ export class AuthController {
       data: {
         accessToken,
       },
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Delete()
+  async deleteAuthentication(@Body() payload: Record<string, any>) {
+    await this.authService.logoutUser(payload.refresh_token);
+
+    return {
+      status: 'ok',
+      message: 'success',
     };
   }
 

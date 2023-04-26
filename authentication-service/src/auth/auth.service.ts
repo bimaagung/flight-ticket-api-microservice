@@ -63,7 +63,7 @@ export class AuthService {
 
   async refreshAuthentication(refreshToken: string): Promise<any> {
     await this.verifyRefreshToken(refreshToken);
-    await this.cacheManager.get(refreshToken);
+    await this.checkAvailabilityToken(refreshToken);
     const decodeToken = this.jwtService.decode(refreshToken);
 
     const payload = {
@@ -83,5 +83,20 @@ export class AuthService {
       console.log(error);
       throw new UnauthorizedException();
     }
+  }
+
+  async checkAvailabilityToken(token: string): Promise<any> {
+    const result = await this.cacheManager.get(token);
+    if (!result) {
+      throw new HttpException(
+        'refresh token not found',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async logoutUser(refreshToken: string): Promise<any> {
+    await this.checkAvailabilityToken(refreshToken);
+    return this.cacheManager.del(refreshToken);
   }
 }
