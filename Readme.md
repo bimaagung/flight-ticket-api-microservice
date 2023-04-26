@@ -58,6 +58,7 @@ Overall, this architecture provides scalability, fault tolerance, and flexibilit
 - PostgreSQL
 - MySQL
 - Elasticsearch
+- Redis
 - TypeORM
 - RabbitMQ
 - Viper
