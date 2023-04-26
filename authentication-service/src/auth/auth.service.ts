@@ -6,19 +6,18 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { Cache } from 'cache-manager';
-import { jwtConstants } from './constants';
+import { JwtTokenManagerService } from 'src/security/jwt-token-manager/jwt-token-manager.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private jwtTokenManagerService: JwtTokenManagerService,
   ) {}
 
   async loginUser(email: string, pass: string): Promise<any> {
@@ -32,21 +31,51 @@ export class AuthService {
 
     const payload = { id: user.id, email: user.email };
 
-    const access_token = await this.jwtService.signAsync(payload);
+    const accessToken = await this.jwtTokenManagerService.createAccessToken(
+      payload,
+    );
+    const refreshToken = await this.jwtTokenManagerService.refreshAccessToken(
+      payload,
+    );
 
-    await this.cacheManager.set(access_token, access_token);
+    await this.cacheManager.set(refreshToken, refreshToken);
 
     return {
-      id: user.id,
-      access_token,
+      accessToken,
+      refreshToken,
     };
+  }
+
+  async refreshAuthentication(refreshToken: string): Promise<any> {
+    await this.jwtTokenManagerService.verifyRefreshToken(refreshToken);
+    await this.checkAvailabilityToken(refreshToken);
+    const decodeToken = this.jwtTokenManagerService.decodePayload(refreshToken);
+
+    const payload = {
+      id: decodeToken['id'],
+      email: decodeToken['email'],
+    };
+
+    return this.jwtTokenManagerService.createAccessToken(payload);
+  }
+
+  async logoutUser(refreshToken: string): Promise<any> {
+    await this.checkAvailabilityToken(refreshToken);
+    return this.cacheManager.del(refreshToken);
+  }
+
+  async checkAvailabilityToken(token: string): Promise<any> {
+    const result = await this.cacheManager.get(token);
+    if (!result) {
+      throw new HttpException('refresh token not found', HttpStatus.NOT_FOUND);
+    }
   }
 
   async signUp(createUserDto: CreateUserDto): Promise<any> {
     const verifyUser = await this.usersService.FindByEmail(createUserDto.email);
 
     if (verifyUser) {
-      throw new HttpException('user not available', HttpStatus.BAD_REQUEST);
+      throw new HttpException('user not available', HttpStatus.NOT_FOUND);
     }
 
     const users = await this.usersService.add(createUserDto);
@@ -59,29 +88,5 @@ export class AuthService {
     };
 
     return result;
-  }
-
-  async refreshAuthentication(refreshToken: string): Promise<any> {
-    await this.verifyRefreshToken(refreshToken);
-    await this.cacheManager.get(refreshToken);
-    const decodeToken = this.jwtService.decode(refreshToken);
-
-    const payload = {
-      id: decodeToken['id'],
-      email: decodeToken['email'],
-    };
-
-    return this.jwtService.signAsync(payload);
-  }
-
-  async verifyRefreshToken(refreshToken: string) {
-    try {
-      await this.jwtService.verifyAsync(refreshToken, {
-        secret: jwtConstants.secret,
-      });
-    } catch (error) {
-      console.log(error);
-      throw new UnauthorizedException();
-    }
   }
 }

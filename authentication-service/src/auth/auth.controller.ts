@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Post,
@@ -16,7 +17,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post()
   async postAuthentication(@Body() signInDto: Record<string, any>) {
-    const result = await this.authService.loginUser(
+    const { accessToken, refreshToken } = await this.authService.loginUser(
       signInDto.email,
       signInDto.password,
     );
@@ -24,7 +25,10 @@ export class AuthController {
     return {
       status: 'ok',
       message: 'success',
-      data: result.access_token,
+      data: {
+        accessToken,
+        refreshToken,
+      },
     };
   }
 
@@ -41,6 +45,17 @@ export class AuthController {
       data: {
         accessToken,
       },
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Delete()
+  async deleteAuthentication(@Body() payload: Record<string, any>) {
+    await this.authService.logoutUser(payload.refresh_token);
+
+    return {
+      status: 'ok',
+      message: 'success',
     };
   }
 

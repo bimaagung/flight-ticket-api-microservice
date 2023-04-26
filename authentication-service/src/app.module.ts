@@ -6,11 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { JwtTokenManagerService } from './security/jwt-token-manager/jwt-token-manager.service';
+import { JwtTokenManagerModule } from './security/jwt-token-manager/jwt-token-manager.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      cache: true,
     }),
     CacheModule.registerAsync({
       isGlobal: true,
@@ -32,8 +35,9 @@ import { AuthModule } from './auth/auth.module';
     }),
     UsersModule,
     AuthModule,
+    JwtTokenManagerModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, JwtTokenManagerService],
 })
 export class AppModule {}

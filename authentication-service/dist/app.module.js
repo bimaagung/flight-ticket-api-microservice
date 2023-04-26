@@ -15,6 +15,8 @@ const typeorm_1 = require("@nestjs/typeorm");
 const config_1 = require("@nestjs/config");
 const users_module_1 = require("./users/users.module");
 const auth_module_1 = require("./auth/auth.module");
+const jwt_token_manager_service_1 = require("./security/jwt-token-manager/jwt-token-manager.service");
+const jwt_token_manager_module_1 = require("./security/jwt-token-manager/jwt-token-manager.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -22,6 +24,7 @@ AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
+                cache: true,
             }),
             common_1.CacheModule.registerAsync({
                 isGlobal: true,
@@ -43,9 +46,10 @@ AppModule = __decorate([
             }),
             users_module_1.UsersModule,
             auth_module_1.AuthModule,
+            jwt_token_manager_module_1.JwtTokenManagerModule,
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        providers: [app_service_1.AppService, jwt_token_manager_service_1.JwtTokenManagerService],
     })
 ], AppModule);
 exports.AppModule = AppModule;
