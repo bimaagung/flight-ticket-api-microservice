@@ -1,4 +1,4 @@
-name: Ticket Service
+name: Tests Ticket Service
 on:
   pull_request:
     branches:
@@ -12,19 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.19.x'
-      - name: Get dependencies
-        run: |
-          go get -v -t -d ./...        
-      - name: Build
-        run: go build -v ./...
-
-  test:
+  tests:
     runs-on: ubuntu-latest
 
     steps:
