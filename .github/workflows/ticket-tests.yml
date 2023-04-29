@@ -9,10 +9,7 @@ defaults:
     working-directory: ticket-service
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-  tests:
+  test:
     runs-on: ubuntu-latest
 
     steps:
