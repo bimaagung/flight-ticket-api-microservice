@@ -1,0 +1,15 @@
+name: CI
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Test ticket service
+        uses: ./ticket-service/.github/workflows/main.yml
