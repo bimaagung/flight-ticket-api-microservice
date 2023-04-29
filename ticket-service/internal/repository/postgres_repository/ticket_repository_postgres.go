@@ -26,12 +26,12 @@ func(repository *ticketRepositoryPostgres) Insert(ticket *domain.Ticket)(string,
 	ctx, cancel := context.WithTimeout(context.Background(),repository.DBTimeout)
 	defer cancel()
 
-	var id uuid.UUID = uuid.New()
+	var id uuid.UUID
 
-	query := `insert into tickets (id, track_id, airplane_id, datetime, price) VALUES ($1, $2, $3, $4, $5) returning id`
+	query := `insert into tickets (id, track_id, airplane_id, datetime, price) values ($1, $2, $3, $4, $5) returning id`
 
 	err := repository.DB.QueryRowContext(ctx, query, 
-		id,
+		ticket.Id,
 		ticket.TrackId,
 		ticket.AirplaneId,
 		ticket.Datetime,
@@ -42,7 +42,7 @@ func(repository *ticketRepositoryPostgres) Insert(ticket *domain.Ticket)(string,
 		return "", err
 	}
 
-	return id.String(), nil
+	return ticket.Id.String(), nil
 }
 
 func (repository *ticketRepositoryPostgres) CheckTicketExist(trackId uuid.UUID, airplaneId uuid.UUID, datetime time.Time) error {

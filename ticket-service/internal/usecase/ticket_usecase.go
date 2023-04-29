@@ -32,11 +32,14 @@ type ticketUseCaseImpl struct {
 
 func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 
+
 	parseTime, err := time.Parse(time.RFC3339, payload.Datetime)
 
 	if err != nil {
 		return "", err
 	}
+
+	var TicketId uuid.UUID = uuid.New()
 
 	parseTrackId, err := uuid.Parse(payload.TrackId)
 
@@ -51,6 +54,7 @@ func(useCase *ticketUseCaseImpl) Add(payload *domain.TicketReq)(string, error){
 	}
 
 	ticket := &domain.Ticket{
+		Id: TicketId,
 		TrackId: parseTrackId,
 		AirplaneId: parseAirplalneId,
 		Datetime: parseTime,
