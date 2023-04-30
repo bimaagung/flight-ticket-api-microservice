@@ -130,6 +130,12 @@ func main() {
 	}()
 
 	port := viper.GetString("PORT")
-	r.Run(port) 
+	
+	err = r.Run(port)
+
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 
 }
