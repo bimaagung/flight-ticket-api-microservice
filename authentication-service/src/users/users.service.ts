@@ -40,8 +40,20 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.FindById(id);
-    return this.usersRepository.save({ ...user, ...updateUserDto });
+    const getUser = await this.FindById(id);
+    const user = await this.usersRepository.save({
+      ...getUser,
+      ...updateUserDto,
+    });
+
+    const result = {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      address: user.address,
+    };
+
+    return result;
   }
 
   async remove(id: string) {
