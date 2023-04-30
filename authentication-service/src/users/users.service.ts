@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -11,6 +12,7 @@ export class UsersService {
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
 
+  // TODO: verify email not working
   async add(createUserDto: CreateUserDto): Promise<any> {
     const saltOrRounds = 10;
     const hashPass = await bcrypt.hash(createUserDto.password, saltOrRounds);
@@ -27,15 +29,35 @@ export class UsersService {
     return this.usersRepository.findOneBy({ email });
   }
 
-  /*
+  async FindById(id: string) {
+    const result = await this.usersRepository.findOneBy({ id });
+
+    if (!result) {
+      throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+    }
+
+    return result;
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.findOne(id);
-    return this.usersRepository.save({ ...user, ...updateUserDto });
+    const getUser = await this.FindById(id);
+    const user = await this.usersRepository.save({
+      ...getUser,
+      ...updateUserDto,
+    });
+
+    const result = {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      address: user.address,
+    };
+
+    return result;
   }
 
   async remove(id: string) {
-    const user = await this.findOne(id);
+    const user = await this.FindById(id);
     return this.usersRepository.remove(user);
   }
-  */
 }
