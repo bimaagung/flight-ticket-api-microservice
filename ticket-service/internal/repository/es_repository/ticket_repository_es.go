@@ -25,11 +25,11 @@ type Source struct {
     ID                string 			`json:"id"`
     Track             *domain.Track  	`json:"track"`
     Airplane          *domain.Airplane 	`json:"airplane"`
-    ArrivalDatetime   time.Time 			`json:"arrival_datetime"`
-    DepartureDatetime time.Time 			`json:"departure_datetime"`
+    ArrivalDatetime   time.Time 		`json:"arrival_datetime"`
+    DepartureDatetime time.Time 		`json:"departure_datetime"`
     Price             int    			`json:"price"`
-    CreatedAt         time.Time 			`json:"created_at"`
-    UpdatedAt         time.Time 			`json:"updated_at"`
+    CreatedAt         time.Time 		`json:"created_at"`
+    UpdatedAt         time.Time 		`json:"updated_at"`
 }
 
 
