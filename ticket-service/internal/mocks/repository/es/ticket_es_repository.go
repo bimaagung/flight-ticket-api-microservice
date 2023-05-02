@@ -1,4 +1,4 @@
-package mockses
+package mocksesrepository
 
 import (
 	"ticket-service/domain"
