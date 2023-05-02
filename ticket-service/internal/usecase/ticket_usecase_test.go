@@ -3,8 +3,8 @@ package usecase_test
 import (
 	"testing"
 	"ticket-service/domain"
-	mockses "ticket-service/internal/mocks/es"
-	mockspostgres "ticket-service/internal/mocks/postgres"
+	mocksesrepository "ticket-service/internal/mocks/repository/es"
+	mockspostgresrepository "ticket-service/internal/mocks/repository/postgres"
 	"ticket-service/internal/usecase"
 	"time"
 
@@ -15,10 +15,10 @@ import (
 
 func TestTicketUC_Add(t *testing.T) {
 
-	mockTicketPostgresRepository := new(mockspostgres.TicketPostgresRepository)
-	mockTrackPostgresRepository := new(mockspostgres.TrackPostgresRepository)
-	mockAirplanePostgresRepository := new(mockspostgres.AirplanePostgresRepository)
-	mockTicketESRepository := new(mockses.TicketESRepository)
+	mockTicketPostgresRepository := new(mockspostgresrepository.TicketPostgresRepository)
+	mockTrackPostgresRepository := new(mockspostgresrepository.TrackPostgresRepository)
+	mockAirplanePostgresRepository := new(mockspostgresrepository.AirplanePostgresRepository)
+	mockTicketESRepository := new(mocksesrepository.TicketESRepository)
 
 	
 

@@ -1,4 +1,4 @@
-package mockspostgres
+package mockspostgresrepository
 
 import (
 	"ticket-service/domain"
