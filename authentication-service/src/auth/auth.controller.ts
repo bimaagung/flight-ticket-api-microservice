@@ -4,11 +4,13 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UpdatePasswordDto } from 'src/auth/dto/update-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -67,6 +69,19 @@ export class AuthController {
       status: 'ok',
       message: 'success',
       data: result,
+    };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('update/password/:id')
+  async updatePassword(
+    @Param('id') idUser: string,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
+    await this.authService.updatePassword(idUser, updatePasswordDto);
+    return {
+      status: 'ok',
+      message: 'success',
     };
   }
 }
