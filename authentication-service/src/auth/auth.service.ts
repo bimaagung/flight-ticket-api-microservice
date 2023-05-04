@@ -8,9 +8,13 @@ import {
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UpdatePasswordDto } from 'src/auth/dto/update-password.dto';
 import { Cache } from 'cache-manager';
 import { JwtTokenManagerService } from 'src/security/jwt-token-manager/jwt-token-manager.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +22,7 @@ export class AuthService {
     private usersService: UsersService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private jwtTokenManagerService: JwtTokenManagerService,
+    @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
 
   async loginUser(email: string, pass: string): Promise<any> {
@@ -88,5 +93,31 @@ export class AuthService {
     };
 
     return result;
+  }
+
+  async updatePassword(
+    idUser: string,
+    updatePasswordDto: UpdatePasswordDto,
+  ): Promise<any> {
+    if (updatePasswordDto.new_password !== updatePasswordDto.retype_password) {
+      throw new HttpException('passwords do not match', HttpStatus.BAD_REQUEST);
+    }
+
+    const user = await this.usersService.FindById(idUser);
+
+    const isMatchPass = await bcrypt.compare(
+      updatePasswordDto.old_password,
+      user.password,
+    );
+
+    if (!isMatchPass) {
+      throw new HttpException(
+        'old password is incorrect',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    user.password = updatePasswordDto.new_password;
+    return this.usersRepository.save(user);
   }
 }
