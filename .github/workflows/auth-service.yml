@@ -33,4 +33,4 @@ jobs:
           node-version: '18.x'
       - run: npm ci
       - run: npm install
-      - run: npm test:cov
+      - run: npm run test:cov
