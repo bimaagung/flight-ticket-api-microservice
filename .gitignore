@@ -15,4 +15,7 @@ authentication-service/node_modules
 authentication-service/dist
 authentication-service/.env
 authentication-service/.vscode
+order-service/dist
+order-service/node_modules
+order-service/.vscode
 
