@@ -20,12 +20,4 @@ export class UsersController {
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
-
-  /*
-
-  @Get(':email')
-  findOne(@Param('email') email: string) {
-    return this.usersService.FindByEmail(email);
-  }
-  */
 }
