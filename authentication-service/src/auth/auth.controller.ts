@@ -11,6 +11,7 @@ import {
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UpdatePasswordDto } from 'src/auth/dto/update-password.dto';
+import { successResponse } from '../utils/response';
 
 @Controller('auth')
 export class AuthController {
@@ -24,14 +25,10 @@ export class AuthController {
       signInDto.password,
     );
 
-    return {
-      status: 'ok',
-      message: 'success',
-      data: {
-        accessToken,
-        refreshToken,
-      },
-    };
+    return successResponse({
+      accessToken,
+      refreshToken,
+    });
   }
 
   @HttpCode(HttpStatus.OK)
@@ -41,13 +38,9 @@ export class AuthController {
       payload.refresh_token,
     );
 
-    return {
-      status: 'ok',
-      message: 'success',
-      data: {
-        accessToken,
-      },
-    };
+    return successResponse({
+      accessToken,
+    });
   }
 
   @HttpCode(HttpStatus.OK)
@@ -55,21 +48,14 @@ export class AuthController {
   async deleteAuthentication(@Body() payload: Record<string, any>) {
     await this.authService.logoutUser(payload.refresh_token);
 
-    return {
-      status: 'ok',
-      message: 'success',
-    };
+    return successResponse();
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('register')
   async signUp(@Body() createUserDto: CreateUserDto) {
     const result = await this.authService.signUp(createUserDto);
-    return {
-      status: 'ok',
-      message: 'success',
-      data: result,
-    };
+    return successResponse(result);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -79,9 +65,6 @@ export class AuthController {
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
     await this.authService.updatePassword(idUser, updatePasswordDto);
-    return {
-      status: 'ok',
-      message: 'success',
-    };
+    return successResponse();
   }
 }
