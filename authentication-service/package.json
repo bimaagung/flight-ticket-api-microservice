@@ -33,7 +33,7 @@
     "cache-manager": "^5.2.1",
     "cache-manager-redis-store": "^3.0.1",
     "cache-manager-redis-yet": "^4.1.1",
-    "mysql2": "^3.2.3",
+    "mysql2": "^3.2.4",
     "node-cache-manager": "^1.2.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
