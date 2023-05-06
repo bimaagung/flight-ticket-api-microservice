@@ -6,23 +6,25 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from './../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { UpdatePasswordDto } from 'src/auth/dto/update-password.dto';
 import { Cache } from 'cache-manager';
-import { JwtTokenManagerService } from 'src/security/jwt-token-manager/jwt-token-manager.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { JwtTokenManagerService } from './../security/jwt-token-manager/jwt-token-manager.service';
+import { CreateUserDto } from './../users/dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { User } from './../users/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
     private usersService: UsersService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private jwtTokenManagerService: JwtTokenManagerService,
-    @InjectRepository(User) private usersRepository: Repository<User>,
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
   ) {}
 
   async loginUser(email: string, pass: string): Promise<any> {

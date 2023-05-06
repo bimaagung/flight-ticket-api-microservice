@@ -9,7 +9,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User) private usersRepository: Repository<User>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
   ) {}
 
   // TODO: verify email not working

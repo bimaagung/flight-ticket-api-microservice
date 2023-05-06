@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtTokenManagerService } from './security/jwt-token-manager/jwt-token-manager.service';
 import { JwtTokenManagerModule } from './security/jwt-token-manager/jwt-token-manager.module';
+import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
@@ -40,4 +41,6 @@ import { JwtTokenManagerModule } from './security/jwt-token-manager/jwt-token-ma
   controllers: [AppController],
   providers: [AppService, JwtTokenManagerService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private dataSource: DataSource) {}
+}
