@@ -12,6 +12,9 @@ export class Order {
   customerId: string;
 
   @Prop({ required: true })
+  ticketId: string;
+
+  @Prop({ required: true })
   qty: number;
 
   @Prop({ required: true })
