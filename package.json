@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "@nestjs/cache-manager": "^1.0.0",
-    "@nestjs/microservices": "^9.4.0",
-    "amqp-connection-manager": "^4.1.13",
-    "amqplib": "^0.10.3",
-    "cache-manager": "^5.2.1"
-  }
-}
