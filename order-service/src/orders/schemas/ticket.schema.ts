@@ -14,22 +14,22 @@ export class Ticket {
   @Prop({ required: true })
   airplaneId: string;
 
-  @Prop({ required: true })
+  @Prop({ type: Date, required: true })
   date: Date;
 
-  @Prop({ required: true })
+  @Prop({ type: Date, required: true })
   time: Date;
 
   @Prop({ required: true })
   price: number;
 
-  @Prop({ required: true, default: now() })
+  @Prop({ type: Date, required: true, default: now() })
   createdAt: Date;
 
-  @Prop({ required: true, default: now() })
+  @Prop({ type: Date, required: true, default: now() })
   updatedAt: Date;
 
-  @Prop({ default: null })
+  @Prop({ type: Date, default: null })
   deletedAt: Date;
 }
 

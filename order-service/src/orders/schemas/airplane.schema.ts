@@ -11,13 +11,13 @@ export class Airplane {
   @Prop({ required: true })
   flightCode: string;
 
-  @Prop({ required: true, default: now() })
+  @Prop({ type: Date, required: true, default: now() })
   createdAt: Date;
 
-  @Prop({ required: true, default: now() })
+  @Prop({ type: Date, required: true, default: now() })
   updatedAt: Date;
 
-  @Prop({ default: null })
+  @Prop({ type: Date, default: null })
   deletedAt: Date;
 }
 

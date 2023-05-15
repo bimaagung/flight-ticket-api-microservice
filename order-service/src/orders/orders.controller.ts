@@ -1,5 +1,10 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -9,7 +14,11 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @MessagePattern('createOrder')
-  create(@Payload() createOrderDto: CreateOrderDto) {
+  create(
+    @Payload() createOrderDto: CreateOrderDto,
+    @Ctx() context: RmqContext,
+  ) {
+    console.log(`Pattern: ${context.getPattern()}`);
     return this.ordersService.create(createOrderDto);
   }
 
