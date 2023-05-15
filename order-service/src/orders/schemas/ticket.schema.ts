@@ -1,24 +1,27 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { now, Date, HydratedDocument } from 'mongoose';
 
-export type CustomerDocument = HydratedDocument<Customer>;
+export type TicketDocument = HydratedDocument<Ticket>;
 
 @Schema({ timestamps: true })
-export class Customer {
+export class Ticket {
   @Prop({ required: true })
   id: string;
 
   @Prop({ required: true })
-  name: string;
+  trackId: string;
 
   @Prop({ required: true })
-  gender: number;
+  airplaneId: string;
 
   @Prop({ required: true })
-  address: string;
+  date: Date;
 
   @Prop({ required: true })
-  email: string;
+  time: Date;
+
+  @Prop({ required: true })
+  price: number;
 
   @Prop({ required: true, default: now() })
   createdAt: Date;
@@ -30,4 +33,4 @@ export class Customer {
   deletedAt: Date;
 }
 
-export const CustomerSchema = SchemaFactory.createForClass(Customer);
+export const TicketSchema = SchemaFactory.createForClass(Ticket);

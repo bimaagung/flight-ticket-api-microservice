@@ -1,11 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { now, Date, HydratedDocument } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
 export type OrderDocument = HydratedDocument<Order>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Order {
-  @Prop({ required: true })
+  @Prop({ default: uuidv4, required: true })
   id: string;
 
   @Prop({ required: true })
